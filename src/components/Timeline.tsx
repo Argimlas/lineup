@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { Day, Act, InterestMap } from '../types';
+import type { Day, Act, InterestLevel, InterestMap } from '../types';
+import BandCard from './BandCard';
 
 interface Props {
   day: Day;
   interestMap: InterestMap;
+  setInterest: (actId: string, level: InterestLevel) => void;
 }
 
 function useIsMobile(): boolean {
@@ -54,14 +56,8 @@ function assignLanes(acts: Act[]): Map<string, { lane: number; totalLanes: numbe
 const CELL = 40;
 const LABEL = 80;
 const HEADER = 32;
-const INTEREST_BG: Record<number, string> = {
-  0: '#2a2a2a',
-  1: '#1a3a4a',
-  2: '#3a2a0a',
-  3: '#1a3a1a',
-};
 
-export default function Timeline({ day, interestMap }: Props) {
+export default function Timeline({ day, interestMap, setInterest }: Props) {
   const isMobile = useIsMobile();
 
   if (!day.stages.some(s => s.acts.length > 0)) {
@@ -137,19 +133,21 @@ export default function Timeline({ day, interestMap }: Props) {
       const tStart = `${startSlot + 2}`;
       const tEnd = `${endSlot + 2}`;
       const actPos = `${base + laneInfo.lane}`;
-      const bg = INTEREST_BG[interestMap[act.id] ?? 0] ?? INTEREST_BG[0];
+      const level = (interestMap[act.id] ?? 0) as InterestLevel;
 
       nodes.push(
         <div
           key={act.id}
-          title={`${act.name} ${toLabel(act.startTime)}–${toLabel(act.endTime)}`}
           style={isMobile
-            ? { gridRow: `${tStart} / ${tEnd}`, gridColumn: actPos, background: bg, border: '1px solid #444', borderRadius: '3px', padding: '2px 4px', fontSize: '11px', overflow: 'hidden', margin: '1px' }
-            : { gridColumn: `${tStart} / ${tEnd}`, gridRow: actPos, background: bg, border: '1px solid #444', borderRadius: '3px', padding: '2px 4px', fontSize: '11px', overflow: 'hidden', margin: '1px' }
+            ? { gridRow: `${tStart} / ${tEnd}`, gridColumn: actPos, padding: '1px' }
+            : { gridColumn: `${tStart} / ${tEnd}`, gridRow: actPos, padding: '1px' }
           }
         >
-          <div style={{ fontWeight: 600, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{act.name}</div>
-          <div style={{ color: '#aaa', fontSize: '10px' }}>{toLabel(act.startTime)}–{toLabel(act.endTime)}</div>
+          <BandCard
+            act={act}
+            level={level}
+            onToggle={() => setInterest(act.id, ((level + 1) % 4) as InterestLevel)}
+          />
         </div>
       );
     });

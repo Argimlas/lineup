@@ -9,7 +9,7 @@ function App() {
     <div>
       <h1>Lineup</h1>
       <Editor festival={festival} setFestival={setFestival} />
-      {firstDay && <Timeline day={firstDay} interestMap={interestMap} />}
+      {firstDay && <Timeline day={firstDay} interestMap={interestMap} setInterest={setInterest} />}
     </div>
   );
 }
