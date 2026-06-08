@@ -1,0 +1,34 @@
+import { useState, useEffect } from 'react';
+import type { Festival, InterestLevel, InterestMap } from '../types';
+
+interface LineupData {
+  festival: Festival | null;
+  interestMap: InterestMap;
+}
+
+const defaultData: LineupData = { festival: null, interestMap: {} };
+
+function load(festivalId: string): LineupData {
+  try {
+    const raw = localStorage.getItem(`lineup_${festivalId}`);
+    return raw ? (JSON.parse(raw) as LineupData) : defaultData;
+  } catch {
+    return defaultData;
+  }
+}
+
+export function useLineup(festivalId = 'default') {
+  const [data, setData] = useState<LineupData>(() => load(festivalId));
+
+  useEffect(() => {
+    localStorage.setItem(`lineup_${festivalId}`, JSON.stringify(data));
+  }, [festivalId, data]);
+
+  const setFestival = (festival: Festival | null) =>
+    setData(d => ({ ...d, festival }));
+
+  const setInterest = (actId: string, level: InterestLevel) =>
+    setData(d => ({ ...d, interestMap: { ...d.interestMap, [actId]: level } }));
+
+  return { festival: data.festival, interestMap: data.interestMap, setFestival, setInterest };
+}
