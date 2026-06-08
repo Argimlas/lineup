@@ -7,6 +7,7 @@ interface Props {
   day: Day;
   interestMap: InterestMap;
   setInterest: (actId: string, level: InterestLevel) => void;
+  hideUnmarked?: boolean;
 }
 
 function useIsMobile(): boolean {
@@ -57,7 +58,7 @@ const CELL = 40;
 const LABEL = 80;
 const HEADER = 32;
 
-export default function Timeline({ day, interestMap, setInterest }: Props) {
+export default function Timeline({ day, interestMap, setInterest, hideUnmarked = false }: Props) {
   const isMobile = useIsMobile();
 
   if (!day.stages.some(s => s.acts.length > 0)) {
@@ -68,6 +69,12 @@ export default function Timeline({ day, interestMap, setInterest }: Props) {
   const slotCount = (rangeEnd - rangeStart) / 15;
 
   const stages = day.stages
+    .map(stage => ({
+      ...stage,
+      acts: hideUnmarked
+        ? stage.acts.filter(a => (interestMap[a.id] ?? 0) > 0)
+        : stage.acts,
+    }))
     .filter(s => s.acts.length > 0)
     .map(stage => {
       const laneMap = assignLanes(stage.acts);
