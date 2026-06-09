@@ -1,4 +1,5 @@
 import type { Act, InterestLevel } from '../types';
+import { formatTime } from '../lib/time';
 
 interface Props {
   act: Act;
@@ -6,22 +7,25 @@ interface Props {
   onToggle: () => void;
 }
 
-function toLabel(m: number): string {
-  return `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-}
-
-const BG: Record<InterestLevel, string> = {
+export const BG: Record<InterestLevel, string> = {
   0: '#2a2a2a',
   1: '#1e2a35',
   2: '#3a2e00',
   3: '#0a3318',
 };
 
-const BORDER: Record<InterestLevel, string> = {
+export const BORDER: Record<InterestLevel, string> = {
   0: '#444',
   1: '#336',
   2: '#664',
   3: '#163',
+};
+
+export const INTEREST_LABELS: Record<InterestLevel, string> = {
+  0: 'kein Interesse',
+  1: 'ok',
+  2: 'hätt ich Lust',
+  3: 'unbedingt',
 };
 
 export default function BandCard({ act, level, onToggle }: Props) {
@@ -48,7 +52,7 @@ export default function BandCard({ act, level, onToggle }: Props) {
         {act.name}
       </div>
       <div style={{ color: '#aaa', fontSize: '10px' }}>
-        {toLabel(act.startTime)}–{toLabel(act.endTime)}
+        {formatTime(act.startTime)}–{formatTime(act.endTime)}
       </div>
     </button>
   );

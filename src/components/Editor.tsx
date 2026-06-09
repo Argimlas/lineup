@@ -1,23 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Festival, Act } from '../types';
 import { parseLineup } from '../lib/parser';
+import { formatTime } from '../lib/time';
 
 interface Props {
   festival: Festival | null;
   setFestival: (f: Festival | null) => void;
 }
 
-function minutesToTime(m: number): string {
-  const h = Math.floor(m / 60) % 24;
-  const min = m % 60;
-  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-}
-
-function parseTime(s: string): number {
+function parseTime(s: string): number | null {
+  if (!s.includes(':')) return null;
   const [h, m] = s.split(':');
   const hours = parseInt(h, 10);
   const mins = parseInt(m, 10);
-  return isNaN(hours) || isNaN(mins) ? 0 : hours * 60 + mins;
+  return isNaN(hours) || isNaN(mins) ? null : hours * 60 + mins;
 }
 
 function deleteAct(festival: Festival, actId: string): Festival {
@@ -58,6 +54,11 @@ export default function Editor({ festival, setFestival }: Props) {
   const [pasteText, setPasteText] = useState('');
   const [festivalName, setFestivalName] = useState(festival?.name ?? 'Festival');
   const [form, setForm] = useState(emptyForm);
+  const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    if (festival?.name) setFestivalName(festival.name);
+  }, [festival?.name]);
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
@@ -70,6 +71,15 @@ export default function Editor({ festival, setFestival }: Props) {
     if (!day.trim() || !stage.trim() || !name.trim()) return;
     const startTime = parseTime(start);
     const endTime = parseTime(end);
+    if (startTime === null || endTime === null) {
+      setFormError('Zeiten im Format HH:mm angeben (z.B. 21:00).');
+      return;
+    }
+    if (endTime <= startTime) {
+      setFormError('Ende muss nach dem Start liegen.');
+      return;
+    }
+    setFormError('');
     const act: Act = {
       id: `${day}|${stage}|${name}|${startTime}`,
       name: name.trim(),
@@ -112,6 +122,7 @@ export default function Editor({ festival, setFestival }: Props) {
         <input placeholder="Start (HH:mm)" value={form.start} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />
         <input placeholder="Ende (HH:mm)" value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
         <button onClick={handleAdd}>Hinzufügen</button>
+        {formError && <p style={{ color: '#e07070', fontSize: '0.8rem', margin: '4px 0 0' }}>{formError}</p>}
       </section>
 
       <section>
@@ -128,7 +139,7 @@ export default function Editor({ festival, setFestival }: Props) {
                   <ul>
                     {stage.acts.map(act => (
                       <li key={act.id}>
-                        {act.name} {minutesToTime(act.startTime)}–{minutesToTime(act.endTime)}
+                        {act.name} {formatTime(act.startTime)}–{formatTime(act.endTime)}
                         <button onClick={() => handleDelete(act.id)}>×</button>
                       </li>
                     ))}

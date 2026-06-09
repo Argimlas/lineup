@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Day, Act, InterestLevel, InterestMap } from '../types';
 import BandCard from './BandCard';
+import { formatTime } from '../lib/time';
 
 interface Props {
   day: Day;
@@ -19,10 +20,6 @@ function useIsMobile(): boolean {
     return () => mq.removeEventListener('change', handler);
   }, []);
   return mobile;
-}
-
-function toLabel(m: number): string {
-  return `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
 
 function getTimeRange(day: Day): { start: number; end: number } {
@@ -113,7 +110,7 @@ export default function Timeline({ day, interestMap, setInterest, hideUnmarked =
           : { gridColumn: pos, gridRow: '1', fontSize: '11px', color: '#888', padding: '2px 4px', whiteSpace: 'nowrap' }
         }
       >
-        {toLabel(rangeStart + slot * 15)}
+        {formatTime(rangeStart + slot * 15)}
       </div>
     );
   }

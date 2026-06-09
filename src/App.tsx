@@ -3,6 +3,8 @@ import { useLineup } from './hooks/useLineup';
 import Editor from './components/Editor';
 import Timeline from './components/Timeline';
 import DayTabs from './components/DayTabs';
+import { BG, BORDER, INTEREST_LABELS } from './components/BandCard';
+import type { InterestLevel } from './types';
 import './App.css';
 
 function App() {
@@ -26,21 +28,21 @@ function App() {
             hideUnmarked={hideUnmarked}
             onToggleFilter={() => setHideUnmarked(v => !v)}
           />
+          <div className="interest-legend">
+            {([0, 1, 2, 3] as InterestLevel[]).map(level => (
+              <span key={level}>
+                <span className="interest-dot" style={{ background: BG[level], border: `1px solid ${BORDER[level]}` }} />
+                {INTEREST_LABELS[level]}
+              </span>
+            ))}
+          </div>
           {currentDay && (
-            <>
-              <div className="interest-legend">
-                <span><span className="interest-dot" style={{ background: '#2a2a2a', border: '1px solid #444' }} />kein Interesse</span>
-                <span><span className="interest-dot" style={{ background: '#1e2a35' }} />ok</span>
-                <span><span className="interest-dot" style={{ background: '#3a2e00' }} />hätt ich Lust</span>
-                <span><span className="interest-dot" style={{ background: '#0a3318' }} />unbedingt</span>
-              </div>
-              <Timeline
-                day={currentDay}
-                interestMap={interestMap}
-                setInterest={setInterest}
-                hideUnmarked={hideUnmarked}
-              />
-            </>
+            <Timeline
+              day={currentDay}
+              interestMap={interestMap}
+              setInterest={setInterest}
+              hideUnmarked={hideUnmarked}
+            />
           )}
         </>
       )}
