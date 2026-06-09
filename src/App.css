@@ -93,6 +93,12 @@
   font-size: 0.875rem;
 }
 
+.act-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
 .editor li button {
   color: #666;
   font-size: 1rem;
@@ -103,6 +109,22 @@
 
 .editor li button:hover {
   color: #e0e0e0;
+}
+
+.edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.edit-inline input {
+  flex: 1;
+  min-width: 60px;
+  padding: 2px 6px;
+  margin-bottom: 0;
+  font-size: 0.8rem;
 }
 
 /* ── timeline wrapper ── */

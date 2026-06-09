@@ -28,6 +28,13 @@ function deleteAct(festival: Festival, actId: string): Festival {
   };
 }
 
+function updateAct(festival: Festival, actId: string, changes: { name: string; stage: string; startTime: number; endTime: number }): Festival {
+  const day = festival.days.find(d => d.stages.some(s => s.acts.some(a => a.id === actId)));
+  if (!day) return festival;
+  const newAct: Act = { id: `${day.name}|${changes.stage}|${changes.name}|${changes.startTime}`, ...changes };
+  return addAct(deleteAct(festival, actId), day.name, changes.stage, newAct);
+}
+
 function addAct(festival: Festival | null, dayName: string, stageName: string, act: Act): Festival {
   const base: Festival = festival ?? { id: 'default', name: 'Festival', days: [] };
   const days = base.days;
@@ -55,6 +62,9 @@ export default function Editor({ festival, setFestival }: Props) {
   const [festivalName, setFestivalName] = useState(festival?.name ?? 'Festival');
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', stage: '', start: '', end: '' });
+  const [editError, setEditError] = useState('');
 
   useEffect(() => {
     if (festival?.name) setFestivalName(festival.name);
@@ -95,8 +105,68 @@ export default function Editor({ festival, setFestival }: Props) {
     if (festival) setFestival(deleteAct(festival, actId));
   };
 
+  const startEdit = (act: Act) => {
+    setEditingId(act.id);
+    setEditForm({ name: act.name, stage: act.stage, start: formatTime(act.startTime), end: formatTime(act.endTime) });
+    setEditError('');
+  };
+
+  const handleSaveEdit = () => {
+    if (!festival || !editingId) return;
+    const startTime = parseTime(editForm.start);
+    const endTime = parseTime(editForm.end);
+    if (startTime === null || endTime === null) { setEditError('Zeiten im Format HH:mm angeben.'); return; }
+    if (endTime <= startTime) { setEditError('Ende muss nach dem Start liegen.'); return; }
+    setFestival(updateAct(festival, editingId, { name: editForm.name.trim(), stage: editForm.stage.trim(), startTime, endTime }));
+    setEditingId(null);
+    setEditError('');
+  };
+
   return (
     <div className="editor">
+      <section>
+        <h2>Lineup</h2>
+        {!festival || festival.days.length === 0 ? (
+          <p>Noch kein Lineup eingegeben.</p>
+        ) : (
+          festival.days.map(day => (
+            <div key={day.name}>
+              <h3>{day.name}</h3>
+              {day.stages.map(stage => (
+                <div key={stage.name}>
+                  <h4>{stage.name}</h4>
+                  <ul>
+                    {stage.acts.map(act => (
+                      <li key={act.id}>
+                        {editingId === act.id ? (
+                          <div className="edit-inline">
+                            <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} placeholder="Band" />
+                            <input value={editForm.stage} onChange={e => setEditForm(f => ({ ...f, stage: e.target.value }))} placeholder="Stage" />
+                            <input value={editForm.start} onChange={e => setEditForm(f => ({ ...f, start: e.target.value }))} placeholder="Start" style={{ width: 70 }} />
+                            <input value={editForm.end} onChange={e => setEditForm(f => ({ ...f, end: e.target.value }))} placeholder="Ende" style={{ width: 70 }} />
+                            {editError && <span style={{ color: '#e07070', fontSize: '0.75rem' }}>{editError}</span>}
+                            <button onClick={handleSaveEdit}>✓</button>
+                            <button onClick={() => setEditingId(null)}>✕</button>
+                          </div>
+                        ) : (
+                          <>
+                            <span>{act.name} {formatTime(act.startTime)}–{formatTime(act.endTime)}</span>
+                            <span className="act-actions">
+                              <button onClick={() => startEdit(act)}>✎</button>
+                              <button onClick={() => handleDelete(act.id)}>×</button>
+                            </span>
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ))
+        )}
+      </section>
+
       <section>
         <h2>Import</h2>
         <input
@@ -123,32 +193,6 @@ export default function Editor({ festival, setFestival }: Props) {
         <input placeholder="Ende (HH:mm)" value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
         <button onClick={handleAdd}>Hinzufügen</button>
         {formError && <p style={{ color: '#e07070', fontSize: '0.8rem', margin: '4px 0 0' }}>{formError}</p>}
-      </section>
-
-      <section>
-        <h2>Lineup</h2>
-        {!festival || festival.days.length === 0 ? (
-          <p>Noch kein Lineup eingegeben.</p>
-        ) : (
-          festival.days.map(day => (
-            <div key={day.name}>
-              <h3>{day.name}</h3>
-              {day.stages.map(stage => (
-                <div key={stage.name}>
-                  <h4>{stage.name}</h4>
-                  <ul>
-                    {stage.acts.map(act => (
-                      <li key={act.id}>
-                        {act.name} {formatTime(act.startTime)}–{formatTime(act.endTime)}
-                        <button onClick={() => handleDelete(act.id)}>×</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          ))
-        )}
       </section>
     </div>
   );
