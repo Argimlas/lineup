@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Day, Act, InterestLevel, InterestMap } from '../types';
 import BandCard from './BandCard';
@@ -11,17 +10,6 @@ interface Props {
   hideUnmarked?: boolean;
 }
 
-function useIsMobile(): boolean {
-  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const handler = (e: MediaQueryListEvent) => setMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return mobile;
-}
-
 function getTimeRange(day: Day): { start: number; end: number } {
   let start = Infinity, end = 0;
   for (const stage of day.stages) {
@@ -31,6 +19,20 @@ function getTimeRange(day: Day): { start: number; end: number } {
     }
   }
   return { start: Math.floor(start / 15) * 15, end: Math.ceil(end / 15) * 15 };
+}
+
+function getBreaks(acts: Act[], minGap = 30): Array<{ gapStart: number; gapEnd: number }> {
+  if (acts.length < 2) return [];
+  const sorted = [...acts].sort((a, b) => a.startTime - b.startTime);
+  const result: Array<{ gapStart: number; gapEnd: number }> = [];
+  let currentEnd = sorted[0].endTime;
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].startTime - currentEnd >= minGap) {
+      result.push({ gapStart: currentEnd, gapEnd: sorted[i].startTime });
+    }
+    currentEnd = Math.max(currentEnd, sorted[i].endTime);
+  }
+  return result;
 }
 
 function assignLanes(acts: Act[]): Map<string, { lane: number; totalLanes: number }> {
@@ -51,13 +53,11 @@ function assignLanes(acts: Act[]): Map<string, { lane: number; totalLanes: numbe
   return result;
 }
 
-const CELL = 40;
+const CELL = 20;
 const LABEL = 80;
 const HEADER = 32;
 
 export default function Timeline({ day, interestMap, setInterest, hideUnmarked = false }: Props) {
-  const isMobile = useIsMobile();
-
   if (!day.stages.some(s => s.acts.length > 0)) {
     return <p>Kein Lineup für {day.name}.</p>;
   }
@@ -85,30 +85,19 @@ export default function Timeline({ day, interestMap, setInterest, hideUnmarked =
   let cursor = 2;
   for (const s of stages) { stageBases.push(cursor); cursor += s.totalLanes; }
 
-  const gridStyle = isMobile
-    ? {
-        display: 'grid',
-        gridTemplateRows: `${HEADER}px repeat(${slotCount}, ${CELL}px)`,
-        gridTemplateColumns: `${LABEL}px repeat(${totalLanes}, ${CELL}px)`,
-      }
-    : {
-        display: 'grid',
-        gridTemplateColumns: `${LABEL}px repeat(${slotCount}, ${CELL}px)`,
-        gridTemplateRows: `${HEADER}px repeat(${totalLanes}, ${CELL}px)`,
-      };
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: `${LABEL}px repeat(${slotCount}, ${CELL}px)`,
+    gridTemplateRows: `${HEADER}px repeat(${totalLanes}, ${CELL * 2}px)`,
+  };
 
   const nodes: ReactNode[] = [];
 
-  // Time labels every 60 min (= 4 slots)
   for (let slot = 0; slot < slotCount; slot += 4) {
-    const pos = `${slot + 2}`;
     nodes.push(
       <div
         key={`t${slot}`}
-        style={isMobile
-          ? { gridRow: pos, gridColumn: '1', fontSize: '11px', color: '#888', padding: '2px 4px', alignSelf: 'start', whiteSpace: 'nowrap' }
-          : { gridColumn: pos, gridRow: '1', fontSize: '11px', color: '#888', padding: '2px 4px', whiteSpace: 'nowrap' }
-        }
+        style={{ gridColumn: `${slot + 2}`, gridRow: '1', fontSize: '11px', color: '#888', padding: '2px 4px', whiteSpace: 'nowrap' }}
       >
         {formatTime(rangeStart + slot * 15)}
       </div>
@@ -121,10 +110,7 @@ export default function Timeline({ day, interestMap, setInterest, hideUnmarked =
     nodes.push(
       <div
         key={`sl-${info.stage.name}`}
-        style={isMobile
-          ? { gridColumn: `${base} / ${base + info.totalLanes}`, gridRow: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', background: '#1e1e1e', overflow: 'hidden', whiteSpace: 'nowrap', borderLeft: '1px solid #333' }
-          : { gridRow: `${base} / ${base + info.totalLanes}`, gridColumn: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', background: '#1e1e1e', overflow: 'hidden', whiteSpace: 'nowrap', borderTop: '1px solid #333', padding: '0 8px' }
-        }
+        style={{ gridRow: `${base} / ${base + info.totalLanes}`, gridColumn: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '12px', background: '#1e1e1e', overflow: 'hidden', whiteSpace: 'nowrap', borderTop: '1px solid #333', padding: '0 8px' }}
       >
         {info.stage.name}
       </div>
@@ -134,24 +120,32 @@ export default function Timeline({ day, interestMap, setInterest, hideUnmarked =
       const laneInfo = info.laneMap.get(act.id)!;
       const startSlot = Math.round((act.startTime - rangeStart) / 15);
       const endSlot = Math.round((act.endTime - rangeStart) / 15);
-      const tStart = `${startSlot + 2}`;
-      const tEnd = `${endSlot + 2}`;
       const actPos = `${base + laneInfo.lane}`;
       const level = (interestMap[act.id] ?? 0) as InterestLevel;
 
       nodes.push(
         <div
           key={act.id}
-          style={isMobile
-            ? { gridRow: `${tStart} / ${tEnd}`, gridColumn: actPos, padding: '1px' }
-            : { gridColumn: `${tStart} / ${tEnd}`, gridRow: actPos, padding: '1px' }
-          }
+          style={{ gridColumn: `${startSlot + 2} / ${endSlot + 2}`, gridRow: actPos, padding: '1px' }}
         >
           <BandCard
             act={act}
             level={level}
             onToggle={() => setInterest(act.id, ((level + 1) % 4) as InterestLevel)}
           />
+        </div>
+      );
+    });
+
+    getBreaks(info.stage.acts).forEach(({ gapStart, gapEnd }) => {
+      const s = Math.round((gapStart - rangeStart) / 15);
+      const e = Math.round((gapEnd - rangeStart) / 15);
+      nodes.push(
+        <div
+          key={`brk-${info.stage.name}-${gapStart}`}
+          style={{ gridColumn: `${s + 2} / ${e + 2}`, gridRow: `${base} / ${base + info.totalLanes}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#444', fontSize: '10px', fontStyle: 'italic', pointerEvents: 'none' }}
+        >
+          {gapEnd - gapStart} min
         </div>
       );
     });
