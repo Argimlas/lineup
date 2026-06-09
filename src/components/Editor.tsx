@@ -86,7 +86,7 @@ export default function Editor({ festival, setFestival }: Props) {
   };
 
   return (
-    <div>
+    <div className="editor">
       <section>
         <h2>Import</h2>
         <input

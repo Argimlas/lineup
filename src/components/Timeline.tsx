@@ -161,7 +161,7 @@ export default function Timeline({ day, interestMap, setInterest, hideUnmarked =
   });
 
   return (
-    <div style={{ overflow: 'auto' }}>
+    <div className="timeline-wrap">
       <div style={{ ...gridStyle, border: '1px solid #333', background: '#181818' }}>
         {nodes}
       </div>

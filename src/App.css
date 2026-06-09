@@ -1,0 +1,136 @@
+/* ── app shell ── */
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.app > h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 20px;
+}
+
+/* ── editor card sections ── */
+.editor section {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.editor section h2 {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.editor section h3 {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin: 12px 0 4px;
+}
+
+.editor section h4 {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 8px 0 4px;
+}
+
+/* ── form controls ── */
+.editor input,
+.editor textarea {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  background: #242424;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: inherit;
+  margin-bottom: 8px;
+}
+
+.editor input:focus,
+.editor textarea:focus {
+  outline: none;
+  border-color: #666;
+}
+
+/* action buttons (Importieren / Hinzufügen) */
+.editor section > button {
+  padding: 6px 16px;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: inherit;
+}
+
+.editor section > button:hover {
+  background: #383838;
+}
+
+/* ── act list ── */
+.editor ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.editor li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #1e1e1e;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.editor li button {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.editor li button:hover {
+  color: #e0e0e0;
+}
+
+/* ── timeline wrapper ── */
+.timeline-wrap {
+  width: 100%;
+  overflow: auto;
+  border-radius: 4px;
+}
+
+/* ── interest level indicator dots (legend) ── */
+.interest-legend {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 0.75rem;
+  color: #888;
+  align-items: center;
+}
+
+.interest-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.interest-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
