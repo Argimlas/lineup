@@ -17,12 +17,13 @@ function load(festivalId: string): LineupData {
   }
 }
 
-export function useLineup(festivalId = 'default') {
+export function useLineup(festivalId = 'default', consented = false) {
   const [data, setData] = useState<LineupData>(() => load(festivalId));
 
   useEffect(() => {
+    if (!consented) return;
     localStorage.setItem(`lineup_${festivalId}`, JSON.stringify(data));
-  }, [festivalId, data]);
+  }, [festivalId, data, consented]);
 
   const setFestival = (festival: Festival | null) =>
     setData(d => ({ ...d, festival }));

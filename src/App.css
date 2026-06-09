@@ -40,6 +40,54 @@
   color: #aaa;
 }
 
+/* ── consent banner ── */
+.consent-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+  font-size: 0.8rem;
+  color: #aaa;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+
+.consent-banner a {
+  color: #888;
+}
+
+.consent-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.consent-actions button {
+  padding: 4px 14px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: inherit;
+  cursor: pointer;
+}
+
+.consent-actions button:first-child {
+  background: #163;
+  border-color: #264;
+  color: #9f9;
+}
+
+.consent-actions button:hover {
+  filter: brightness(1.2);
+}
+
 /* ── editor card sections ── */
 .editor {
   margin-top: 20px;

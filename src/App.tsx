@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLineup } from './hooks/useLineup';
+import { useConsent } from './hooks/useConsent';
 import Editor from './components/Editor';
 import Timeline from './components/Timeline';
 import DayTabs from './components/DayTabs';
@@ -8,7 +9,8 @@ import type { InterestLevel } from './types';
 import './App.css';
 
 function App() {
-  const { festival, interestMap, setFestival, setInterest } = useLineup();
+  const { consent, accept, decline } = useConsent();
+  const { festival, interestMap, setFestival, setInterest } = useLineup('default', consent === 'accepted');
   const [activeDay, setActiveDay] = useState(0);
   const [hideUnmarked, setHideUnmarked] = useState(false);
 
@@ -54,6 +56,15 @@ function App() {
         <a href="#privacy">Privacy Policy</a>
         <a href="#impressum">Impressum</a>
       </footer>
+      {consent === null && (
+        <div className="consent-banner">
+          <span>This app saves your interest selections in your browser. <a href="#privacy">Privacy Policy</a></span>
+          <div className="consent-actions">
+            <button onClick={accept}>Accept</button>
+            <button onClick={decline}>Decline</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
