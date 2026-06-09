@@ -22,17 +22,17 @@ export const BORDER: Record<InterestLevel, string> = {
 };
 
 export const INTEREST_LABELS: Record<InterestLevel, string> = {
-  0: 'kein Interesse',
-  1: 'ok',
-  2: 'hätt ich Lust',
-  3: 'unbedingt',
+  0: 'Not interested',
+  1: 'Maybe',
+  2: 'Interested',
+  3: 'Must see',
 };
 
 export default function BandCard({ act, level, onToggle }: Props) {
   return (
     <button
       onClick={onToggle}
-      title={`${act.name} – Interesse: ${level}/3 (klicken zum Ändern)`}
+      title={`${act.name} – Interest: ${level}/3 (click to change)`}
       style={{
         display: 'block',
         width: '100%',

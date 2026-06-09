@@ -40,7 +40,7 @@ export default function DayTabs({ days, activeIndex, onSelect, hideUnmarked, onT
           cursor: 'pointer',
         }}
       >
-        {hideUnmarked ? 'Filter: an' : 'Filter: aus'}
+        {hideUnmarked ? 'Filter: on' : 'Filter: off'}
       </button>
     </div>
   );

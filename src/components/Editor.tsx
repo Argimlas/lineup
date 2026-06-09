@@ -82,7 +82,7 @@ export default function Editor({ festival, setFestival }: Props) {
     const startTime = parseTime(start);
     const endTime = parseTime(end);
     if (startTime === null || endTime === null) {
-      setFormError('Zeiten im Format HH:mm angeben (z.B. 21:00).');
+      setFormError('Enter times in HH:mm format (e.g. 21:00).');
       return;
     }
     const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
@@ -112,7 +112,7 @@ export default function Editor({ festival, setFestival }: Props) {
     if (!festival || !editingId) return;
     const startTime = parseTime(editForm.start);
     const endTime = parseTime(editForm.end);
-    if (startTime === null || endTime === null) { setEditError('Zeiten im Format HH:mm angeben.'); return; }
+    if (startTime === null || endTime === null) { setEditError('Enter times in HH:mm format.'); return; }
     const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
     setFestival(updateAct(festival, editingId, { name: editForm.name.trim(), stage: editForm.stage.trim(), startTime, endTime: resolvedEnd }));
     setEditingId(null);
@@ -121,10 +121,10 @@ export default function Editor({ festival, setFestival }: Props) {
 
   return (
     <div className="editor">
-      <details open>
+      <details>
         <summary>Lineup</summary>
         {!festival || festival.days.length === 0 ? (
-          <p>Noch kein Lineup eingegeben.</p>
+          <p>No lineup entered yet.</p>
         ) : (
           festival.days.map(day => (
             <div key={day.name}>
@@ -164,7 +164,7 @@ export default function Editor({ festival, setFestival }: Props) {
         )}
       </details>
 
-      <details open>
+      <details>
         <summary>Import</summary>
         <input
           type="text"
@@ -178,17 +178,17 @@ export default function Editor({ festival, setFestival }: Props) {
           value={pasteText}
           onChange={e => setPasteText(e.target.value)}
         />
-        <button onClick={handleImport}>Importieren</button>
+        <button onClick={handleImport}>Import</button>
       </details>
 
-      <details open>
-        <summary>Manuell hinzufügen</summary>
-        <input placeholder="Tag" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
+      <details>
+        <summary>Add manually</summary>
+        <input placeholder="Day" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
         <input placeholder="Stage" value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))} />
         <input placeholder="Band" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         <input placeholder="Start (HH:mm)" value={form.start} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />
-        <input placeholder="Ende (HH:mm)" value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
-        <button onClick={handleAdd}>Hinzufügen</button>
+        <input placeholder="End (HH:mm)" value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
+        <button onClick={handleAdd}>Add</button>
         {formError && <p style={{ color: '#e07070', fontSize: '0.8rem', margin: '4px 0 0' }}>{formError}</p>}
       </details>
     </div>

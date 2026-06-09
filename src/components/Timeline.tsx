@@ -70,7 +70,7 @@ export default function Timeline({
   hideUnmarked = false,
 }: Props) {
   if (!day.stages.some((s) => s.acts.length > 0)) {
-    return <p>Kein Lineup für {day.name}.</p>;
+    return <p>No lineup for {day.name}.</p>;
   }
 
   const { start: rangeStart, end: rangeEnd } = getTimeRange(day);
@@ -149,6 +149,7 @@ export default function Timeline({
           position: "sticky",
           left: 0,
           zIndex: 1,
+          borderRadius: "4px",
         }}
       >
         {info.stage.name}
