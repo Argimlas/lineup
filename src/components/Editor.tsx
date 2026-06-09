@@ -85,17 +85,14 @@ export default function Editor({ festival, setFestival }: Props) {
       setFormError('Zeiten im Format HH:mm angeben (z.B. 21:00).');
       return;
     }
-    if (endTime <= startTime) {
-      setFormError('Ende muss nach dem Start liegen.');
-      return;
-    }
+    const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
     setFormError('');
     const act: Act = {
       id: `${day}|${stage}|${name}|${startTime}`,
       name: name.trim(),
       stage: stage.trim(),
       startTime,
-      endTime,
+      endTime: resolvedEnd,
     };
     setFestival(addAct(festival, day.trim(), stage.trim(), act));
     setForm(emptyForm);
@@ -116,16 +113,16 @@ export default function Editor({ festival, setFestival }: Props) {
     const startTime = parseTime(editForm.start);
     const endTime = parseTime(editForm.end);
     if (startTime === null || endTime === null) { setEditError('Zeiten im Format HH:mm angeben.'); return; }
-    if (endTime <= startTime) { setEditError('Ende muss nach dem Start liegen.'); return; }
-    setFestival(updateAct(festival, editingId, { name: editForm.name.trim(), stage: editForm.stage.trim(), startTime, endTime }));
+    const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
+    setFestival(updateAct(festival, editingId, { name: editForm.name.trim(), stage: editForm.stage.trim(), startTime, endTime: resolvedEnd }));
     setEditingId(null);
     setEditError('');
   };
 
   return (
     <div className="editor">
-      <section>
-        <h2>Lineup</h2>
+      <details open>
+        <summary>Lineup</summary>
         {!festival || festival.days.length === 0 ? (
           <p>Noch kein Lineup eingegeben.</p>
         ) : (
@@ -165,10 +162,10 @@ export default function Editor({ festival, setFestival }: Props) {
             </div>
           ))
         )}
-      </section>
+      </details>
 
-      <section>
-        <h2>Import</h2>
+      <details open>
+        <summary>Import</summary>
         <input
           type="text"
           placeholder="Festival-Name"
@@ -182,10 +179,10 @@ export default function Editor({ festival, setFestival }: Props) {
           onChange={e => setPasteText(e.target.value)}
         />
         <button onClick={handleImport}>Importieren</button>
-      </section>
+      </details>
 
-      <section>
-        <h2>Manuell hinzufügen</h2>
+      <details open>
+        <summary>Manuell hinzufügen</summary>
         <input placeholder="Tag" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
         <input placeholder="Stage" value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))} />
         <input placeholder="Band" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
@@ -193,7 +190,7 @@ export default function Editor({ festival, setFestival }: Props) {
         <input placeholder="Ende (HH:mm)" value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
         <button onClick={handleAdd}>Hinzufügen</button>
         {formError && <p style={{ color: '#e07070', fontSize: '0.8rem', margin: '4px 0 0' }}>{formError}</p>}
-      </section>
+      </details>
     </div>
   );
 }

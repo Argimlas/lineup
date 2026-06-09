@@ -9,6 +9,24 @@ function parseTime(s: string): number {
   return isNaN(hours) || isNaN(mins) ? 0 : hours * 60 + mins;
 }
 
+// Acts starting before 6 AM on a day that has late-evening acts are next-day → shift by 1440.
+function normalizeDay(day: Day): Day {
+  const allActs = day.stages.flatMap(s => s.acts);
+  const hasLateEvening = allActs.some(a => a.startTime >= 18 * 60);
+  if (!hasLateEvening) return day;
+  return {
+    ...day,
+    stages: day.stages.map(stage => ({
+      ...stage,
+      acts: stage.acts.map(act =>
+        act.startTime < 6 * 60
+          ? { ...act, startTime: act.startTime + 1440, endTime: act.endTime + 1440 }
+          : act
+      ),
+    })),
+  };
+}
+
 function makeId(day: string, stage: string, name: string, startTime: number): string {
   return `${day}|${stage}|${name}|${startTime}`;
 }
@@ -27,7 +45,7 @@ export function parseLineup(text: string, festivalName = 'Festival'): Festival {
   const pushDay = () => {
     pushStage();
     currentStage = null;
-    if (currentDay) days.push(currentDay);
+    if (currentDay) days.push(normalizeDay(currentDay));
   };
 
   for (const raw of lines) {
@@ -63,7 +81,8 @@ export function parseLineup(text: string, festivalName = 'Festival'): Festival {
         const parts = line.split(',').map(p => p.trim());
         const name = parts[0];
         const startTime = parseTime(parts[1] ?? '');
-        const endTime = parseTime(parts[2] ?? '');
+        const rawEnd = parseTime(parts[2] ?? '');
+        const endTime = rawEnd <= startTime ? rawEnd + 1440 : rawEnd;
         const act: Act = {
           id: makeId(currentDay!.name, currentStage!.name, name, startTime),
           name,

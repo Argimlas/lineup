@@ -18,7 +18,6 @@ function App() {
   return (
     <div className="app">
       <h1>Lineup</h1>
-      <Editor festival={festival} setFestival={setFestival} />
       {days.length > 0 && (
         <>
           <DayTabs
@@ -46,6 +45,7 @@ function App() {
           )}
         </>
       )}
+      <Editor festival={festival} setFestival={setFestival} />
     </div>
   );
 }
