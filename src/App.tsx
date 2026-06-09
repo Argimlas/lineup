@@ -17,7 +17,10 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Lineup</h1>
+      <header className="app-header">
+        <h1>Lineup</h1>
+        {festival?.name && <p className="festival-name">{festival.name}</p>}
+      </header>
       {days.length > 0 && (
         <>
           <DayTabs
@@ -46,6 +49,11 @@ function App() {
         </>
       )}
       <Editor festival={festival} setFestival={setFestival} />
+      <footer className="app-footer">
+        <a href="https://github.com/Argimlas/lineup" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="#privacy">Privacy Policy</a>
+        <a href="#impressum">Impressum</a>
+      </footer>
     </div>
   );
 }
