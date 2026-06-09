@@ -9,6 +9,84 @@
   margin-bottom: 20px;
 }
 
+.app-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.help-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #aaa;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.help-btn:hover {
+  background: #383838;
+  color: #e0e0e0;
+}
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.help-modal {
+  position: relative;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 24px 28px;
+  max-width: 420px;
+  width: 90%;
+}
+
+.help-modal h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.help-modal ul {
+  list-style: disc;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.875rem;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.help-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.help-close:hover {
+  color: #e0e0e0;
+}
+
 .app-header h1 {
   font-size: 1.4rem;
   font-weight: 700;
@@ -226,11 +304,22 @@
 
 /* ── timeline wrapper ── */
 .timeline-wrap {
-  width: 100%;
-  overflow: auto;
+  display: flex;
+  overflow: hidden;
   border-radius: 4px;
   background: #181818;
   border: 1px solid #333;
+}
+
+.timeline-labels {
+  width: 80px;
+  flex-shrink: 0;
+  background: #181818;
+}
+
+.timeline-scroll {
+  flex: 1;
+  overflow-x: auto;
 }
 
 /* ── interest level indicator dots (legend) ── */

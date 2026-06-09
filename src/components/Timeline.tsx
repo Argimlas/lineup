@@ -103,7 +103,7 @@ export default function Timeline({
 
   const gridStyle = {
     display: "grid",
-    gridTemplateColumns: `${LABEL}px repeat(${slotCount}, ${CELL}px)`,
+    gridTemplateColumns: `repeat(${slotCount}, ${CELL}px)`,
     gridTemplateRows: `${HEADER}px repeat(${totalLanes}, ${CELL * 1.5}px)`,
   };
 
@@ -114,7 +114,7 @@ export default function Timeline({
       <div
         key={`t${slot}`}
         style={{
-          gridColumn: `${slot + 2}`,
+          gridColumn: `${slot + 1}`,
           gridRow: "1",
           fontSize: "11px",
           color: "#888",
@@ -130,32 +130,6 @@ export default function Timeline({
   stages.forEach((info, si) => {
     const base = stageBases[si];
 
-    nodes.push(
-      <div
-        key={`sl-${info.stage.name}`}
-        style={{
-          gridRow: `${base} / ${base + info.totalLanes}`,
-          gridColumn: "1",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: 700,
-          fontSize: "12px",
-          background: "#1e1e1e",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          borderTop: "1px solid #333",
-          padding: "0 8px",
-          position: "sticky",
-          left: 0,
-          zIndex: 1,
-          borderRadius: "4px",
-        }}
-      >
-        {info.stage.name}
-      </div>,
-    );
-
     info.stage.acts.forEach((act) => {
       const laneInfo = info.laneMap.get(act.id)!;
       const startSlot = Math.round((act.startTime - rangeStart) / 15);
@@ -167,7 +141,7 @@ export default function Timeline({
         <div
           key={act.id}
           style={{
-            gridColumn: `${startSlot + 2} / ${endSlot + 2}`,
+            gridColumn: `${startSlot + 1} / ${endSlot + 1}`,
             gridRow: actPos,
             padding: "1px",
           }}
@@ -190,7 +164,7 @@ export default function Timeline({
         <div
           key={`brk-${info.stage.name}-${gapStart}`}
           style={{
-            gridColumn: `${s + 2} / ${e + 2}`,
+            gridColumn: `${s + 1} / ${e + 1}`,
             gridRow: `${base} / ${base + info.totalLanes}`,
             display: "flex",
             alignItems: "center",
@@ -209,10 +183,34 @@ export default function Timeline({
 
   return (
     <div className="timeline-wrap">
-      <div
-        style={gridStyle}
-      >
-        {nodes}
+      <div className="timeline-labels">
+        <div style={{ height: HEADER }} />
+        {stages.map((info) => (
+          <div
+            key={`sl-${info.stage.name}`}
+            style={{
+              height: CELL * 1.5 * info.totalLanes,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 700,
+              fontSize: "12px",
+              background: "#1e1e1e",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              borderTop: "1px solid #333",
+              padding: "0 8px",
+              borderRadius: "4px",
+            }}
+          >
+            {info.stage.name}
+          </div>
+        ))}
+      </div>
+      <div className="timeline-scroll">
+        <div style={gridStyle}>
+          {nodes}
+        </div>
       </div>
     </div>
   );
