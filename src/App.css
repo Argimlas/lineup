@@ -118,6 +118,19 @@
   color: #aaa;
 }
 
+.footer-privacy-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.footer-privacy-btn:hover {
+  color: #aaa;
+}
+
 /* ── consent banner ── */
 .consent-banner {
   position: fixed;

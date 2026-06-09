@@ -9,7 +9,7 @@ import type { InterestLevel } from './types';
 import './App.css';
 
 function App() {
-  const { consent, accept, decline } = useConsent();
+  const { consent, accept, decline, reset } = useConsent();
   const { festival, interestMap, setFestival, setInterest } = useLineup('default', consent === 'accepted');
   const [activeDay, setActiveDay] = useState(0);
   const [hideUnmarked, setHideUnmarked] = useState(false);
@@ -59,6 +59,7 @@ function App() {
         <a href="https://github.com/Argimlas/lineup" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="#privacy">Privacy Policy</a>
         <a href="#impressum">Impressum</a>
+        <button className="footer-privacy-btn" onClick={reset}>Privacy settings</button>
       </footer>
       {showHelp && (
         <div className="help-overlay" onClick={() => setShowHelp(false)}>
