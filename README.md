@@ -25,7 +25,7 @@ Band D, 21:00, 22:30
 - Separate days with a blank line.
 - Acts ending after midnight (e.g. 01:00 on a day with evening acts) are shifted automatically.
 
-You can also add or edit acts individually under **Add manually**.
+You can also add or edit acts individually under **Add manually**. To remove a single act, open the **Lineup** section and click ×. To clear everything, use **Delete all** at the top of that section.
 
 ### Timeline
 
@@ -56,3 +56,7 @@ Requires Node 18+ or Bun.
 ## Stack
 
 React 19 · TypeScript · Vite · no runtime dependencies
+
+## Note
+
+This project was mainly coded by an AI agent (Claude by Anthropic).
