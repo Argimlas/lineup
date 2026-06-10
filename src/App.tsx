@@ -10,7 +10,7 @@ import './App.css';
 
 function App() {
   const { consent, accept, decline, reset } = useConsent();
-  const { festival, interestMap, setFestival, setInterest } = useLineup('default', consent === 'accepted');
+  const { festival, interestMap, setFestival, setInterest, clearStorage } = useLineup('default', consent === 'accepted');
   const [activeDay, setActiveDay] = useState(0);
   const [hideUnmarked, setHideUnmarked] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -77,10 +77,10 @@ function App() {
       )}
       {consent === null && (
         <div className="consent-banner">
-          <span>This app saves your interest selections in your browser. <a href="#privacy">Privacy Policy</a></span>
+          <span><strong>We save data in your browser.</strong> With your consent, this app saves your festival interest selections so they persist between visits. Without consent, the app still works but your selections are cleared when you close the tab. <a href="#privacy">Privacy Policy</a></span>
           <div className="consent-actions">
-            <button onClick={accept}>Accept</button>
-            <button onClick={decline}>Decline</button>
+            <button onClick={accept}>I accept</button>
+            <button onClick={() => { clearStorage(); decline(); }}>I decline</button>
           </div>
         </div>
       )}

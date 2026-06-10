@@ -31,5 +31,10 @@ export function useLineup(festivalId = 'default', consented = false) {
   const setInterest = (actId: string, level: InterestLevel) =>
     setData(d => ({ ...d, interestMap: { ...d.interestMap, [actId]: level } }));
 
-  return { festival: data.festival, interestMap: data.interestMap, setFestival, setInterest };
+  const clearStorage = () => {
+    try { localStorage.removeItem(`lineup_${festivalId}`); } catch { /* ignore */ }
+    setData(defaultData);
+  };
+
+  return { festival: data.festival, interestMap: data.interestMap, setFestival, setInterest, clearStorage };
 }

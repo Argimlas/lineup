@@ -169,11 +169,6 @@
   cursor: pointer;
 }
 
-.consent-actions button:first-child {
-  background: #163;
-  border-color: #264;
-  color: #9f9;
-}
 
 .consent-actions button:hover {
   filter: brightness(1.2);
