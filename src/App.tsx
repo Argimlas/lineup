@@ -89,8 +89,17 @@ function App() {
             <h2>How to use</h2>
             <ul>
               <li>
-                <strong>Import lineup</strong> — open the Import section, paste
-                your lineup text and click Import.
+                <strong>Import lineup</strong> — open the Import section, enter
+                a festival name, paste your lineup text and click Import.
+              </li>
+              <li>
+                <strong>Add manually</strong> — open "Add manually" to add
+                individual acts by day, stage, name and time.
+              </li>
+              <li>
+                <strong>Edit &amp; delete</strong> — open the Lineup section to
+                edit (✎) or delete (×) individual acts, or use "Delete all" to
+                start over.
               </li>
               <li>
                 <strong>Mark interest</strong> — click any act on the timeline

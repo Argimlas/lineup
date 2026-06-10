@@ -67,8 +67,8 @@ export default function Editor({ festival, setFestival }: Props) {
   const [editError, setEditError] = useState('');
 
   useEffect(() => {
-    if (festival?.name) setFestivalName(festival.name);
-  }, [festival?.name]);
+    setFestivalName(festival?.name ?? 'Festival');
+  }, [festival]);
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
@@ -123,6 +123,14 @@ export default function Editor({ festival, setFestival }: Props) {
     <div className="editor">
       <details>
         <summary>Lineup</summary>
+        {festival && festival.days.length > 0 && (
+          <button
+            onClick={() => setFestival(null)}
+            style={{ marginBottom: 8, background: '#5a1a1a', color: '#e07070', border: '1px solid #7a2a2a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
+          >
+            Delete all
+          </button>
+        )}
         {!festival || festival.days.length === 0 ? (
           <p>No lineup entered yet.</p>
         ) : (

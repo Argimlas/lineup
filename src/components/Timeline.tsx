@@ -157,7 +157,7 @@ export default function Timeline({
       );
     });
 
-    getBreaks(info.stage.acts).forEach(({ gapStart, gapEnd }) => {
+    getBreaks(info.stage.acts, 15).forEach(({ gapStart, gapEnd }) => {
       const s = Math.round((gapStart - rangeStart) / 15);
       const e = Math.round((gapEnd - rangeStart) / 15);
       nodes.push(
