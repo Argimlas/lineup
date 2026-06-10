@@ -1,73 +1,58 @@
-# React + TypeScript + Vite
+# Lineup
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based festival schedule planner. Import a lineup, mark your interest in each act, and view all stages as a horizontal timeline.
 
-Currently, two official plugins are available:
+## Usage
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Import
 
-## React Compiler
+Open the **Import** section, optionally set the festival name, paste your lineup in the format below, and click Import.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+Friday
+Main Stage
+Band A, 21:00, 23:00
+Band B, 23:30, 01:00
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Saturday
+Main Stage
+Band C, 20:00, 22:00
+Second Stage
+Band D, 21:00, 22:30
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- One day name per block, followed by one or more stage names, each with acts as `Name, start, end` (HH:mm).
+- Separate days with a blank line.
+- Acts ending after midnight (e.g. 01:00 on a day with evening acts) are shifted automatically.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+You can also add or edit acts individually under **Add manually**.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Timeline
+
+Each act is a clickable cell. Click to cycle through interest levels:
+
+| Color | Level |
+|---|---|
+| Dark | Not interested |
+| Blue | Maybe |
+| Yellow | Interested |
+| Green | Must see |
+
+Use the day tabs to switch between days. **Filter** hides all unmarked acts.
+
+### Privacy
+
+Interest selections are saved in your browser's localStorage after you accept the consent prompt. To change your choice later, use the **Privacy settings** link in the footer.
+
+## Quick start
+
+```bash
+bun install   # or npm install
+bun dev       # or npm run dev
 ```
+
+Requires Node 18+ or Bun.
+
+## Stack
+
+React 19 · TypeScript · Vite · no runtime dependencies
