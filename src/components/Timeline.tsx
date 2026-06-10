@@ -60,7 +60,6 @@ function assignLanes(
 }
 
 const CELL = 40;
-const LABEL = 80;
 const HEADER = 32;
 
 export default function Timeline({
