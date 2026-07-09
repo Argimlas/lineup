@@ -4,7 +4,9 @@ import { formatTime } from '../lib/time';
 interface Props {
   act: Act;
   level: InterestLevel;
+  seen: boolean;
   onToggle: () => void;
+  onToggleSeen: () => void;
 }
 
 export const BG: Record<InterestLevel, string> = {
@@ -28,12 +30,13 @@ export const INTEREST_LABELS: Record<InterestLevel, string> = {
   3: 'Must see',
 };
 
-export default function BandCard({ act, level, onToggle }: Props) {
+export default function BandCard({ act, level, seen, onToggle, onToggleSeen }: Props) {
   return (
     <button
       onClick={onToggle}
       title={`${act.name} – Interest: ${level}/3 (click to change)`}
       style={{
+        position: 'relative',
         display: 'block',
         width: '100%',
         height: '100%',
@@ -48,7 +51,32 @@ export default function BandCard({ act, level, onToggle }: Props) {
         boxSizing: 'border-box',
       }}
     >
-      <div style={{ fontWeight: 600, fontSize: '11px', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span
+        role="button"
+        title={seen ? 'Mark as not seen' : 'Mark as seen'}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleSeen();
+        }}
+        style={{
+          position: 'absolute',
+          top: 2,
+          right: 2,
+          width: 14,
+          height: 14,
+          lineHeight: '14px',
+          textAlign: 'center',
+          fontSize: '10px',
+          borderRadius: '50%',
+          background: seen ? '#0a3318' : '#2a2a2a',
+          border: `1px solid ${seen ? '#163' : '#555'}`,
+          color: seen ? '#6f6' : '#777',
+          cursor: 'pointer',
+        }}
+      >
+        ✓
+      </span>
+      <div style={{ fontWeight: 600, fontSize: '11px', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 14 }}>
         {act.name}
       </div>
       <div style={{ color: '#aaa', fontSize: '10px' }}>

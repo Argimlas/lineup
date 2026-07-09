@@ -7,7 +7,9 @@ interface Props {
   day: Day;
   interestMap: InterestMap;
   setInterest: (actId: string, level: InterestLevel) => void;
-  hideUnmarked?: boolean;
+  seenMap: Record<string, boolean>;
+  setSeen: (actId: string) => void;
+  selectedLevels: Set<InterestLevel>;
 }
 
 function getTimeRange(day: Day): { start: number; end: number } {
@@ -66,7 +68,9 @@ export default function Timeline({
   day,
   interestMap,
   setInterest,
-  hideUnmarked = false,
+  seenMap,
+  setSeen,
+  selectedLevels,
 }: Props) {
   if (!day.stages.some((s) => s.acts.length > 0)) {
     return <p>No lineup for {day.name}.</p>;
@@ -78,9 +82,9 @@ export default function Timeline({
   const stages = day.stages
     .map((stage) => ({
       ...stage,
-      acts: hideUnmarked
-        ? stage.acts.filter((a) => (interestMap[a.id] ?? 0) > 0)
-        : stage.acts,
+      acts: selectedLevels.size === 0
+        ? stage.acts
+        : stage.acts.filter((a) => selectedLevels.has((interestMap[a.id] ?? 0) as InterestLevel)),
     }))
     .filter((s) => s.acts.length > 0)
     .map((stage) => {
@@ -148,9 +152,11 @@ export default function Timeline({
           <BandCard
             act={act}
             level={level}
+            seen={seenMap[act.id] ?? false}
             onToggle={() =>
               setInterest(act.id, ((level + 1) % 4) as InterestLevel)
             }
+            onToggleSeen={() => setSeen(act.id)}
           />
         </div>,
       );

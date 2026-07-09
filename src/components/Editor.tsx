@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Festival, Act } from '../types';
 import { parseLineup } from '../lib/parser';
+import { serializeLineup } from '../lib/serialize';
 import { formatTime } from '../lib/time';
 
 interface Props {
@@ -65,6 +66,7 @@ export default function Editor({ festival, setFestival }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', stage: '', start: '', end: '' });
   const [editError, setEditError] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setFestivalName(festival?.name ?? 'Festival');
@@ -98,8 +100,18 @@ export default function Editor({ festival, setFestival }: Props) {
     setForm(emptyForm);
   };
 
-  const handleDelete = (actId: string) => {
-    if (festival) setFestival(deleteAct(festival, actId));
+  const handleCopy = () => {
+    if (!festival) return;
+    navigator.clipboard.writeText(serializeLineup(festival)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
+  const handleDelete = (actId: string, actName: string) => {
+    if (!festival) return;
+    if (!window.confirm(`Delete ${actName}?`)) return;
+    setFestival(deleteAct(festival, actId));
   };
 
   const startEdit = (act: Act) => {
@@ -124,12 +136,22 @@ export default function Editor({ festival, setFestival }: Props) {
       <details>
         <summary>Lineup</summary>
         {festival && festival.days.length > 0 && (
-          <button
-            onClick={() => setFestival(null)}
-            style={{ marginBottom: 8, background: '#5a1a1a', color: '#e07070', border: '1px solid #7a2a2a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
-          >
-            Delete all
-          </button>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <button
+              onClick={() => {
+                if (window.confirm('Delete the entire lineup?')) setFestival(null);
+              }}
+              style={{ background: '#5a1a1a', color: '#e07070', border: '1px solid #7a2a2a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              Delete all
+            </button>
+            <button
+              onClick={handleCopy}
+              style={{ background: '#1a3a2a', color: '#6fc9a0', border: '1px solid #2a5a3a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
         )}
         {!festival || festival.days.length === 0 ? (
           <p>No lineup entered yet.</p>
@@ -158,7 +180,7 @@ export default function Editor({ festival, setFestival }: Props) {
                             <span>{act.name} {formatTime(act.startTime)}–{formatTime(act.endTime)}</span>
                             <span className="act-actions">
                               <button onClick={() => startEdit(act)}>✎</button>
-                              <button onClick={() => handleDelete(act.id)}>×</button>
+                              <button onClick={() => handleDelete(act.id, act.name)}>×</button>
                             </span>
                           </>
                         )}

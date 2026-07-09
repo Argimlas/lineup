@@ -10,13 +10,22 @@ import "./App.css";
 
 function App() {
   const { consent, accept, decline, reset } = useConsent();
-  const { festival, interestMap, setFestival, setInterest, clearStorage } = useLineup(
+  const { festival, interestMap, seenMap, setFestival, setInterest, setSeen, clearStorage } = useLineup(
     "default",
     consent === "accepted",
   );
   const [activeDay, setActiveDay] = useState(0);
-  const [hideUnmarked, setHideUnmarked] = useState(false);
+  const [selectedLevels, setSelectedLevels] = useState<Set<InterestLevel>>(new Set());
   const [showHelp, setShowHelp] = useState(false);
+
+  const toggleLevel = (level: InterestLevel) => {
+    setSelectedLevels((prev) => {
+      const next = new Set(prev);
+      if (next.has(level)) next.delete(level);
+      else next.add(level);
+      return next;
+    });
+  };
 
   const days = festival?.days ?? [];
   const currentDay = days[activeDay] ?? null;
@@ -38,8 +47,8 @@ function App() {
             days={days}
             activeIndex={activeDay}
             onSelect={setActiveDay}
-            hideUnmarked={hideUnmarked}
-            onToggleFilter={() => setHideUnmarked((v) => !v)}
+            selectedLevels={selectedLevels}
+            onToggleLevel={toggleLevel}
           />
           <div className="interest-legend">
             {([0, 1, 2, 3] as InterestLevel[]).map((level) => (
@@ -60,7 +69,9 @@ function App() {
               day={currentDay}
               interestMap={interestMap}
               setInterest={setInterest}
-              hideUnmarked={hideUnmarked}
+              seenMap={seenMap}
+              setSeen={setSeen}
+              selectedLevels={selectedLevels}
             />
           )}
         </>
@@ -110,8 +121,9 @@ function App() {
                 switch between festival days.
               </li>
               <li>
-                <strong>Filter</strong> — toggle "Filter" to show only acts
-                you've marked.
+                <strong>Filter</strong> — toggle Maybe / Interested / Must-see
+                to show only acts at those interest levels (combine multiple,
+                or select none to show everything).
               </li>
             </ul>
           </div>

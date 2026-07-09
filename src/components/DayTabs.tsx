@@ -1,14 +1,17 @@
-import type { Day } from '../types';
+import type { Day, InterestLevel } from '../types';
+import { INTEREST_LABELS } from './BandCard';
 
 interface Props {
   days: Day[];
   activeIndex: number;
   onSelect: (index: number) => void;
-  hideUnmarked: boolean;
-  onToggleFilter: () => void;
+  selectedLevels: Set<InterestLevel>;
+  onToggleLevel: (level: InterestLevel) => void;
 }
 
-export default function DayTabs({ days, activeIndex, onSelect, hideUnmarked, onToggleFilter }: Props) {
+const FILTER_LEVELS: InterestLevel[] = [1, 2, 3];
+
+export default function DayTabs({ days, activeIndex, onSelect, selectedLevels, onToggleLevel }: Props) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
       {days.map((day, i) => (
@@ -28,20 +31,27 @@ export default function DayTabs({ days, activeIndex, onSelect, hideUnmarked, onT
           {day.name}
         </button>
       ))}
-      <button
-        onClick={onToggleFilter}
-        style={{
-          marginLeft: 'auto',
-          padding: '4px 12px',
-          background: hideUnmarked ? '#1a3a1a' : '#2a2a2a',
-          color: hideUnmarked ? '#6f6' : '#e0e0e0',
-          border: `1px solid ${hideUnmarked ? '#163' : '#444'}`,
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
-        {hideUnmarked ? 'Filter: on' : 'Filter: off'}
-      </button>
+      <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+        {FILTER_LEVELS.map((level) => {
+          const active = selectedLevels.has(level);
+          return (
+            <button
+              key={level}
+              onClick={() => onToggleLevel(level)}
+              style={{
+                padding: '4px 12px',
+                background: active ? '#1a3a1a' : '#2a2a2a',
+                color: active ? '#6f6' : '#e0e0e0',
+                border: `1px solid ${active ? '#163' : '#444'}`,
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              {INTEREST_LABELS[level]}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

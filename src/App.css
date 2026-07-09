@@ -102,6 +102,7 @@
 
 .app-footer {
   display: flex;
+  justify-content: center;
   gap: 16px;
   margin-top: 32px;
   padding-top: 16px;
