@@ -2,73 +2,13 @@ import { useState } from 'react';
 import type { Festival, Act } from '../types';
 import { parseLineup } from '../lib/parser';
 import { serializeLineup } from '../lib/serialize';
-import { formatTime } from '../lib/time';
+import { formatTime, parseTimeToMinutes } from '../lib/time';
 import { formatDayLabel } from '../lib/date';
+import { deleteAct, addAct, updateAct, renameStage } from '../lib/festival';
 
 interface Props {
   festival: Festival | null;
   setFestival: (f: Festival | null) => void;
-}
-
-function parseTime(s: string): number | null {
-  if (!s.includes(':')) return null;
-  const [h, m] = s.split(':');
-  const hours = parseInt(h, 10);
-  const mins = parseInt(m, 10);
-  return isNaN(hours) || isNaN(mins) ? null : hours * 60 + mins;
-}
-
-function deleteAct(festival: Festival, actId: string): Festival {
-  return {
-    ...festival,
-    days: festival.days.map(day => ({
-      ...day,
-      stages: day.stages
-        .map(stage => ({ ...stage, acts: stage.acts.filter(a => a.id !== actId) }))
-        .filter(stage => stage.acts.length > 0),
-    })).filter(day => day.stages.length > 0),
-  };
-}
-
-function updateAct(festival: Festival, actId: string, changes: { name: string; stage: string; startTime: number; endTime: number }): Festival {
-  const day = festival.days.find(d => d.stages.some(s => s.acts.some(a => a.id === actId)));
-  if (!day) return festival;
-  const newAct: Act = { id: `${day.date}|${changes.stage}|${changes.name}|${changes.startTime}`, ...changes };
-  return addAct(deleteAct(festival, actId), day.date, changes.stage, newAct);
-}
-
-function renameStage(festival: Festival, oldName: string, newName: string): Festival {
-  return {
-    ...festival,
-    days: festival.days.map(day => ({
-      ...day,
-      stages: day.stages.map(stage =>
-        stage.name === oldName
-          ? { ...stage, name: newName, acts: stage.acts.map(act => ({ ...act, stage: newName })) }
-          : stage
-      ),
-    })),
-  };
-}
-
-function addAct(festival: Festival | null, dayDate: string, stageName: string, act: Act): Festival {
-  const base: Festival = festival ?? { id: 'default', name: 'Festival', days: [] };
-  const days = base.days;
-
-  const mergeStage = (stages: Festival['days'][0]['stages']) => {
-    const existing = stages.find(s => s.name === stageName);
-    if (existing) {
-      return stages.map(s => s.name === stageName ? { ...s, acts: [...s.acts, act] } : s);
-    }
-    return [...stages, { name: stageName, acts: [act] }];
-  };
-
-  const existingDay = days.find(d => d.date === dayDate);
-  const newDays = existingDay
-    ? days.map(d => d.date === dayDate ? { ...d, stages: mergeStage(d.stages) } : d)
-    : [...days, { date: dayDate, stages: [{ name: stageName, acts: [act] }] }];
-
-  return { ...base, days: newDays };
 }
 
 const emptyForm = { day: '', stage: '', name: '', start: '', end: '' };
@@ -84,6 +24,7 @@ Band C, 21:00, 22:00
 Main Stage
 Band D, 19:00, 20:00
 Band E, 23:00, 01:00
+Band H, 01:15, 02:00
 Second Stage
 Band F, 20:30, 22:00
 Band G, 22:30, 00:00`;
@@ -118,21 +59,15 @@ export default function Editor({ festival, setFestival }: Props) {
   const handleAdd = () => {
     const { day, stage, name, start, end } = form;
     if (!day.trim() || !stage.trim() || !name.trim()) return;
-    const startTime = parseTime(start);
-    const endTime = parseTime(end);
+    const startTime = parseTimeToMinutes(start);
+    const endTime = parseTimeToMinutes(end);
     if (startTime === null || endTime === null) {
       setFormError('Enter times in HH:mm format (e.g. 21:00).');
       return;
     }
     const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
     setFormError('');
-    const act: Act = {
-      id: `${day}|${stage}|${name}|${startTime}`,
-      name: name.trim(),
-      stage: stage.trim(),
-      startTime,
-      endTime: resolvedEnd,
-    };
+    const act = { name: name.trim(), startTime, endTime: resolvedEnd };
     setFestival(addAct(festival, day.trim(), stage.trim(), act));
     setForm(emptyForm);
   };
@@ -159,8 +94,8 @@ export default function Editor({ festival, setFestival }: Props) {
 
   const handleSaveEdit = () => {
     if (!festival || !editingId) return;
-    const startTime = parseTime(editForm.start);
-    const endTime = parseTime(editForm.end);
+    const startTime = parseTimeToMinutes(editForm.start);
+    const endTime = parseTimeToMinutes(editForm.end);
     if (startTime === null || endTime === null) { setEditError('Enter times in HH:mm format.'); return; }
     const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
     setFestival(updateAct(festival, editingId, { name: editForm.name.trim(), stage: editForm.stage.trim(), startTime, endTime: resolvedEnd }));

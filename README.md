@@ -17,15 +17,16 @@ Band B, 23:30, 01:00
 2026-07-11
 Main Stage
 Band C, 20:00, 22:00
+Band E, 01:15, 02:00
 Second Stage
 Band D, 21:00, 22:30
 ```
 
 - One date per block (`DD.MM.YYYY` or `YYYY-MM-DD`), followed by one or more stage names, each with acts as `Name, start, end` (HH:mm).
 - Separate days with a blank line.
-- Acts ending after midnight (e.g. 01:00 on a day with evening acts) are shifted automatically.
+- Acts keep the exact date header they are entered under, including after-midnight times.
 
-You can also add or edit acts individually under **Add manually**. To remove a single act, open the **Lineup** section and click ×. To clear everything, use **Delete all** at the top of that section.
+You can also add or edit acts individually under **Add manually**. To remove a single act, open the **Lineup** section and click ×. To rename the festival or a stage, click ✎ next to its name — the new name applies everywhere it's used. Use **Delete all** to clear everything, or **Copy lineup** to export the current lineup back into the paste format above.
 
 ### Timeline
 
@@ -38,7 +39,9 @@ Each act is a clickable cell. Click to cycle through interest levels:
 | Yellow | Interested |
 | Green | Must see |
 
-Use the day tabs to switch between days. **Filter** hides all unmarked acts.
+Click the ✓ badge on an act to mark it seen, independent of its interest level.
+
+Use the day tabs to switch between days — on load, the app jumps to the current day and time if the festival is running now. **Filter** toggles which interest levels are shown; select one or more to show only matching acts.
 
 ### Privacy
 

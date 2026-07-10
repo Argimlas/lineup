@@ -6,8 +6,8 @@ export interface DayWindow {
   end: Date;
 }
 
-const NOMINAL_START_MIN = 6 * 60;
-const NOMINAL_END_MIN = 30 * 60; // next calendar day, 06:00
+const NOMINAL_START_MIN = 0;
+const NOMINAL_END_MIN = 1440; // next calendar day, midnight
 
 function actDataRange(day: Day): { min: number; max: number } {
   let min = Infinity;
@@ -26,7 +26,7 @@ function addMinutes(date: Date, minutes: number): Date {
 }
 
 // `days` must already be sorted by date ascending. Each day's window is the
-// nominal [date@06:00, date+1@06:00) range, extended (never shrunk) by that
+// nominal [date@00:00, date+1@00:00) range, extended (never shrunk) by that
 // day's actual act data. A day's start only widens past nominal for day 0
 // (no predecessor) — for later days it's chained to the previous day's
 // effective end, since an early act there is already covered by the
