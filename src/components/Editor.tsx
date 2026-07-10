@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Festival, Act } from '../types';
 import { parseLineup } from '../lib/parser';
 import { serializeLineup } from '../lib/serialize';
 import { formatTime } from '../lib/time';
+import { formatDayLabel } from '../lib/date';
 
 interface Props {
   festival: Festival | null;
@@ -32,11 +33,25 @@ function deleteAct(festival: Festival, actId: string): Festival {
 function updateAct(festival: Festival, actId: string, changes: { name: string; stage: string; startTime: number; endTime: number }): Festival {
   const day = festival.days.find(d => d.stages.some(s => s.acts.some(a => a.id === actId)));
   if (!day) return festival;
-  const newAct: Act = { id: `${day.name}|${changes.stage}|${changes.name}|${changes.startTime}`, ...changes };
-  return addAct(deleteAct(festival, actId), day.name, changes.stage, newAct);
+  const newAct: Act = { id: `${day.date}|${changes.stage}|${changes.name}|${changes.startTime}`, ...changes };
+  return addAct(deleteAct(festival, actId), day.date, changes.stage, newAct);
 }
 
-function addAct(festival: Festival | null, dayName: string, stageName: string, act: Act): Festival {
+function renameStage(festival: Festival, oldName: string, newName: string): Festival {
+  return {
+    ...festival,
+    days: festival.days.map(day => ({
+      ...day,
+      stages: day.stages.map(stage =>
+        stage.name === oldName
+          ? { ...stage, name: newName, acts: stage.acts.map(act => ({ ...act, stage: newName })) }
+          : stage
+      ),
+    })),
+  };
+}
+
+function addAct(festival: Festival | null, dayDate: string, stageName: string, act: Act): Festival {
   const base: Festival = festival ?? { id: 'default', name: 'Festival', days: [] };
   const days = base.days;
 
@@ -48,10 +63,10 @@ function addAct(festival: Festival | null, dayName: string, stageName: string, a
     return [...stages, { name: stageName, acts: [act] }];
   };
 
-  const existingDay = days.find(d => d.name === dayName);
+  const existingDay = days.find(d => d.date === dayDate);
   const newDays = existingDay
-    ? days.map(d => d.name === dayName ? { ...d, stages: mergeStage(d.stages) } : d)
-    : [...days, { name: dayName, stages: [{ name: stageName, acts: [act] }] }];
+    ? days.map(d => d.date === dayDate ? { ...d, stages: mergeStage(d.stages) } : d)
+    : [...days, { date: dayDate, stages: [{ name: stageName, acts: [act] }] }];
 
   return { ...base, days: newDays };
 }
@@ -60,17 +75,23 @@ const emptyForm = { day: '', stage: '', name: '', start: '', end: '' };
 
 export default function Editor({ festival, setFestival }: Props) {
   const [pasteText, setPasteText] = useState('');
+  const [prevFestival, setPrevFestival] = useState(festival);
   const [festivalName, setFestivalName] = useState(festival?.name ?? 'Festival');
+  if (festival !== prevFestival) {
+    setPrevFestival(festival);
+    setFestivalName(festival?.name ?? 'Festival');
+  }
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', stage: '', start: '', end: '' });
   const [editError, setEditError] = useState('');
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    setFestivalName(festival?.name ?? 'Festival');
-  }, [festival]);
+  const [editingStageKey, setEditingStageKey] = useState<string | null>(null);
+  const [editingStageOldName, setEditingStageOldName] = useState('');
+  const [stageNameDraft, setStageNameDraft] = useState('');
+  const [editingFestivalName, setEditingFestivalName] = useState(false);
+  const [festivalNameEditDraft, setFestivalNameEditDraft] = useState('');
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
@@ -131,10 +152,51 @@ export default function Editor({ festival, setFestival }: Props) {
     setEditError('');
   };
 
+  const startStageEdit = (key: string, name: string) => {
+    setEditingStageKey(key);
+    setEditingStageOldName(name);
+    setStageNameDraft(name);
+  };
+
+  const handleSaveStageEdit = () => {
+    if (!festival || !editingStageKey) return;
+    const trimmed = stageNameDraft.trim();
+    if (trimmed && trimmed !== editingStageOldName) setFestival(renameStage(festival, editingStageOldName, trimmed));
+    setEditingStageKey(null);
+  };
+
+  const handleSaveFestivalName = () => {
+    if (!festival) return;
+    setFestival({ ...festival, name: festivalNameEditDraft.trim() || festival.name });
+    setEditingFestivalName(false);
+  };
+
   return (
     <div className="editor">
       <details>
         <summary>Lineup</summary>
+        {festival && (
+          editingFestivalName ? (
+            <div className="edit-inline">
+              <input value={festivalNameEditDraft} onChange={e => setFestivalNameEditDraft(e.target.value)} autoFocus />
+              <button onClick={handleSaveFestivalName}>✓</button>
+              <button onClick={() => setEditingFestivalName(false)}>✕</button>
+            </div>
+          ) : (
+            <p className="festival-name">
+              {festival.name}
+              <button
+                className="icon-btn"
+                onClick={() => {
+                  setFestivalNameEditDraft(festival.name);
+                  setEditingFestivalName(true);
+                }}
+              >
+                ✎
+              </button>
+            </p>
+          )
+        )}
         {festival && festival.days.length > 0 && (
           <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
             <button
@@ -157,11 +219,26 @@ export default function Editor({ festival, setFestival }: Props) {
           <p>No lineup entered yet.</p>
         ) : (
           festival.days.map(day => (
-            <div key={day.name}>
-              <h3>{day.name}</h3>
-              {day.stages.map(stage => (
-                <div key={stage.name}>
-                  <h4>{stage.name}</h4>
+            <div key={day.date}>
+              <h3>{formatDayLabel(day.date)}</h3>
+              {day.stages.map((stage, stageIdx) => {
+                const stageKey = `${day.date}::${stageIdx}`;
+                return (
+                <div key={stageKey}>
+                  <h4>
+                    {editingStageKey === stageKey ? (
+                      <span className="edit-inline">
+                        <input value={stageNameDraft} onChange={e => setStageNameDraft(e.target.value)} autoFocus />
+                        <button onClick={handleSaveStageEdit}>✓</button>
+                        <button onClick={() => setEditingStageKey(null)}>✕</button>
+                      </span>
+                    ) : (
+                      <>
+                        {stage.name}
+                        <button className="icon-btn" onClick={() => startStageEdit(stageKey, stage.name)}>✎</button>
+                      </>
+                    )}
+                  </h4>
                   <ul>
                     {stage.acts.map(act => (
                       <li key={act.id}>
@@ -188,7 +265,8 @@ export default function Editor({ festival, setFestival }: Props) {
                     ))}
                   </ul>
                 </div>
-              ))}
+                );
+              })}
             </div>
           ))
         )}
@@ -204,7 +282,7 @@ export default function Editor({ festival, setFestival }: Props) {
         />
         <textarea
           rows={10}
-          placeholder={'Freitag\nMain Stage\nBand A, 21:00, 23:00'}
+          placeholder={'10.07.2026\nMain Stage\nBand A, 21:00, 23:00'}
           value={pasteText}
           onChange={e => setPasteText(e.target.value)}
         />
@@ -213,7 +291,7 @@ export default function Editor({ festival, setFestival }: Props) {
 
       <details>
         <summary>Add manually</summary>
-        <input placeholder="Day" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
+        <input type="date" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
         <input placeholder="Stage" value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))} />
         <input placeholder="Band" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         <input placeholder="Start (HH:mm)" value={form.start} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />

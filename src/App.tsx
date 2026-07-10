@@ -4,7 +4,8 @@ import { useConsent } from "./hooks/useConsent";
 import Editor from "./components/Editor";
 import Timeline from "./components/Timeline";
 import DayTabs from "./components/DayTabs";
-import { BG, BORDER, INTEREST_LABELS } from "./components/BandCard";
+import { BG, BORDER, INTEREST_LABELS } from "./lib/interest";
+import { findActiveDay } from "./lib/dayWindow";
 import type { InterestLevel } from "./types";
 import "./App.css";
 
@@ -14,7 +15,8 @@ function App() {
     "default",
     consent === "accepted",
   );
-  const [activeDay, setActiveDay] = useState(0);
+  const [activeDay, setActiveDay] = useState(() => findActiveDay(festival?.days ?? [], new Date())?.dayIndex ?? 0);
+  const [scrollToMinutes] = useState<number | undefined>(() => findActiveDay(festival?.days ?? [], new Date())?.offsetMinutes);
   const [selectedLevels, setSelectedLevels] = useState<Set<InterestLevel>>(new Set());
   const [showHelp, setShowHelp] = useState(false);
 
@@ -36,7 +38,7 @@ function App() {
         <div className="app-header-row">
           <h1>Lineup</h1>
           <button className="help-btn" onClick={() => setShowHelp(true)}>
-            ?
+            Help
           </button>
         </div>
         {festival?.name && <p className="festival-name">{festival.name}</p>}
@@ -72,6 +74,7 @@ function App() {
               seenMap={seenMap}
               setSeen={setSeen}
               selectedLevels={selectedLevels}
+              scrollToMinutes={scrollToMinutes}
             />
           )}
         </>
@@ -100,30 +103,38 @@ function App() {
             <h2>How to use</h2>
             <ul>
               <li>
-                <strong>Import lineup</strong> — open the Import section, enter
-                a festival name, paste your lineup text and click Import.
+                <strong>Import lineup</strong> — open Import, optionally set a
+                festival name, paste your lineup (day headers as DD.MM.YYYY or
+                YYYY-MM-DD), then click Import.
               </li>
               <li>
-                <strong>Add manually</strong> — open "Add manually" to add
-                individual acts by day, stage, name and time.
+                <strong>Add manually</strong> — pick a date, stage, band name
+                and times under "Add manually".
               </li>
               <li>
-                <strong>Edit &amp; delete</strong> — open the Lineup section to
-                edit (✎) or delete (×) individual acts, or use "Delete all" to
-                start over.
+                <strong>Rename</strong> — open the Lineup section and click ✎
+                next to the festival name or any stage heading to rename it
+                everywhere it appears.
               </li>
               <li>
-                <strong>Mark interest</strong> — click any act on the timeline
-                to cycle through interest levels.
+                <strong>Edit &amp; delete acts</strong> — in the Lineup
+                section, edit (✎) or delete (×) individual acts, or use
+                "Delete all" to start over.
               </li>
               <li>
-                <strong>Switch days</strong> — use the day tabs at the top to
-                switch between festival days.
+                <strong>Mark interest &amp; seen</strong> — click an act to
+                cycle through interest levels; the small ✓ badge on each act
+                marks it as seen.
+              </li>
+              <li>
+                <strong>Switch days</strong> — use the day tabs at the top;
+                the app jumps to the current day and time automatically if a
+                festival is running right now.
               </li>
               <li>
                 <strong>Filter</strong> — toggle Maybe / Interested / Must-see
-                to show only acts at those interest levels (combine multiple,
-                or select none to show everything).
+                (colored to match the legend) to show only acts at those
+                interest levels.
               </li>
             </ul>
           </div>

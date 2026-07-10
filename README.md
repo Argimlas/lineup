@@ -9,19 +9,19 @@ A browser-based festival schedule planner. Import a lineup, mark your interest i
 Open the **Import** section, optionally set the festival name, paste your lineup in the format below, and click Import.
 
 ```
-Friday
+10.07.2026
 Main Stage
 Band A, 21:00, 23:00
 Band B, 23:30, 01:00
 
-Saturday
+2026-07-11
 Main Stage
 Band C, 20:00, 22:00
 Second Stage
 Band D, 21:00, 22:30
 ```
 
-- One day name per block, followed by one or more stage names, each with acts as `Name, start, end` (HH:mm).
+- One date per block (`DD.MM.YYYY` or `YYYY-MM-DD`), followed by one or more stage names, each with acts as `Name, start, end` (HH:mm).
 - Separate days with a blank line.
 - Acts ending after midnight (e.g. 01:00 on a day with evening acts) are shifted automatically.
 

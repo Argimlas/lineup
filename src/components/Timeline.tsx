@@ -1,7 +1,8 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { Day, Act, InterestLevel, InterestMap } from "../types";
 import BandCard from "./BandCard";
 import { formatTime } from "../lib/time";
+import { formatDayLabel } from "../lib/date";
 
 interface Props {
   day: Day;
@@ -10,6 +11,7 @@ interface Props {
   seenMap: Record<string, boolean>;
   setSeen: (actId: string) => void;
   selectedLevels: Set<InterestLevel>;
+  scrollToMinutes?: number;
 }
 
 function getTimeRange(day: Day): { start: number; end: number } {
@@ -71,9 +73,19 @@ export default function Timeline({
   seenMap,
   setSeen,
   selectedLevels,
+  scrollToMinutes,
 }: Props) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollToMinutes === undefined || !scrollRef.current) return;
+    if (!day.stages.some((s) => s.acts.length > 0)) return;
+    const { start: rangeStart } = getTimeRange(day);
+    scrollRef.current.scrollLeft = ((scrollToMinutes - rangeStart) / 15) * CELL;
+  }, [day, scrollToMinutes]);
+
   if (!day.stages.some((s) => s.acts.length > 0)) {
-    return <p>No lineup for {day.name}.</p>;
+    return <p>No lineup for {formatDayLabel(day.date)}.</p>;
   }
 
   const { start: rangeStart, end: rangeEnd } = getTimeRange(day);
@@ -212,7 +224,7 @@ export default function Timeline({
           </div>
         ))}
       </div>
-      <div className="timeline-scroll">
+      <div className="timeline-scroll" ref={scrollRef}>
         <div style={gridStyle}>
           {nodes}
         </div>

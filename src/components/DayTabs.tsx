@@ -1,5 +1,6 @@
 import type { Day, InterestLevel } from '../types';
-import { INTEREST_LABELS } from './BandCard';
+import { BG, BORDER, INTEREST_LABELS } from '../lib/interest';
+import { formatDayLabel } from '../lib/date';
 
 interface Props {
   days: Day[];
@@ -10,13 +11,14 @@ interface Props {
 }
 
 const FILTER_LEVELS: InterestLevel[] = [1, 2, 3];
+const ACTIVE_TEXT: Record<InterestLevel, string> = { 0: '#888', 1: '#5fa8ff', 2: '#e8c547', 3: '#6f6' };
 
 export default function DayTabs({ days, activeIndex, onSelect, selectedLevels, onToggleLevel }: Props) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
       {days.map((day, i) => (
         <button
-          key={day.name}
+          key={day.date}
           onClick={() => onSelect(i)}
           style={{
             padding: '4px 12px',
@@ -28,7 +30,7 @@ export default function DayTabs({ days, activeIndex, onSelect, selectedLevels, o
             cursor: 'pointer',
           }}
         >
-          {day.name}
+          {formatDayLabel(day.date)}
         </button>
       ))}
       <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
@@ -40,10 +42,11 @@ export default function DayTabs({ days, activeIndex, onSelect, selectedLevels, o
               onClick={() => onToggleLevel(level)}
               style={{
                 padding: '4px 12px',
-                background: active ? '#1a3a1a' : '#2a2a2a',
-                color: active ? '#6f6' : '#e0e0e0',
-                border: `1px solid ${active ? '#163' : '#444'}`,
+                background: active ? BG[level] : '#2a2a2a',
+                color: active ? ACTIVE_TEXT[level] : '#e0e0e0',
+                border: `1px solid ${BORDER[level]}`,
                 borderRadius: '4px',
+                fontWeight: active ? 700 : 400,
                 cursor: 'pointer',
               }}
             >

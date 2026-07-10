@@ -5,7 +5,7 @@ export function serializeLineup(festival: Festival): string {
   return festival.days
     .map((day) =>
       [
-        day.name,
+        day.date,
         ...day.stages.flatMap((stage) => [
           stage.name,
           ...stage.acts.map((act) => `${act.name}, ${formatTime(act.startTime)}, ${formatTime(act.endTime)}`),

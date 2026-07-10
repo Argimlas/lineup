@@ -9,26 +9,37 @@ function parseTime(s: string): number {
   return isNaN(hours) || isNaN(mins) ? 0 : hours * 60 + mins;
 }
 
-// Acts starting before 6 AM on a day that has late-evening acts are next-day → shift by 1440.
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const DMY_DATE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
+
+// Accepts DD.MM.YYYY or YYYY-MM-DD, normalizes to ISO. Unrecognized input passes through unchanged.
+function normalizeDate(line: string): string {
+  if (ISO_DATE.test(line)) return line;
+  const dmy = line.match(DMY_DATE);
+  if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+  return line;
+}
+
+// Walks each stage's acts in text order, adding 1440 to a running offset whenever
+// a raw startTime drops below the previous act's raw startTime (day rolled over).
 function normalizeDay(day: Day): Day {
-  const allActs = day.stages.flatMap(s => s.acts);
-  const hasLateEvening = allActs.some(a => a.startTime >= 18 * 60);
-  if (!hasLateEvening) return day;
   return {
     ...day,
-    stages: day.stages.map(stage => ({
-      ...stage,
-      acts: stage.acts.map(act =>
-        act.startTime < 6 * 60
-          ? { ...act, startTime: act.startTime + 1440, endTime: act.endTime + 1440 }
-          : act
-      ),
-    })),
+    stages: day.stages.map(stage => {
+      let offset = 0;
+      let prevRawStart: number | null = null;
+      const acts = stage.acts.map(act => {
+        if (prevRawStart !== null && act.startTime < prevRawStart) offset += 1440;
+        prevRawStart = act.startTime;
+        return { ...act, startTime: act.startTime + offset, endTime: act.endTime + offset };
+      });
+      return { ...stage, acts };
+    }),
   };
 }
 
-function makeId(day: string, stage: string, name: string, startTime: number): string {
-  return `${day}|${stage}|${name}|${startTime}`;
+function makeId(date: string, stage: string, name: string, startTime: number): string {
+  return `${date}|${stage}|${name}|${startTime}`;
 }
 
 export function parseLineup(text: string, festivalName = 'Festival'): Festival {
@@ -63,7 +74,7 @@ export function parseLineup(text: string, festivalName = 'Festival'): Festival {
     const isAct = line.includes(',');
 
     if (state === 'AWAITING_DAY') {
-      currentDay = { name: line, stages: [] };
+      currentDay = { date: normalizeDate(line), stages: [] };
       state = 'AWAITING_STAGE';
       continue;
     }
@@ -84,7 +95,7 @@ export function parseLineup(text: string, festivalName = 'Festival'): Festival {
         const rawEnd = parseTime(parts[2] ?? '');
         const endTime = rawEnd <= startTime ? rawEnd + 1440 : rawEnd;
         const act: Act = {
-          id: makeId(currentDay!.name, currentStage!.name, name, startTime),
+          id: makeId(currentDay!.date, currentStage!.name, name, startTime),
           name,
           stage: currentStage!.name,
           startTime,

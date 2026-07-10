@@ -14,7 +14,7 @@ export interface Stage {
 }
 
 export interface Day {
-  name: string;
+  date: string; // ISO YYYY-MM-DD
   stages: Stage[];
 }
 
