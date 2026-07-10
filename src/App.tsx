@@ -4,7 +4,6 @@ import { useConsent } from "./hooks/useConsent";
 import Editor from "./components/Editor";
 import Timeline from "./components/Timeline";
 import DayTabs from "./components/DayTabs";
-import { BG, BORDER, INTEREST_LABELS } from "./lib/interest";
 import { findActiveDay } from "./lib/dayWindow";
 import type { InterestLevel } from "./types";
 import "./App.css";
@@ -52,20 +51,6 @@ function App() {
             selectedLevels={selectedLevels}
             onToggleLevel={toggleLevel}
           />
-          <div className="interest-legend">
-            {([0, 1, 2, 3] as InterestLevel[]).map((level) => (
-              <span key={level}>
-                <span
-                  className="interest-dot"
-                  style={{
-                    background: BG[level],
-                    border: `1px solid ${BORDER[level]}`,
-                  }}
-                />
-                {INTEREST_LABELS[level]}
-              </span>
-            ))}
-          </div>
           {currentDay && (
             <Timeline
               day={currentDay}
@@ -103,9 +88,9 @@ function App() {
             <h2>How to use</h2>
             <ul>
               <li>
-                <strong>Import lineup</strong> — open Import, optionally set a
-                festival name, paste your lineup (day headers as DD.MM.YYYY or
-                YYYY-MM-DD), then click Import.
+                <strong>Import lineup</strong> — open the Lineup section,
+                optionally set a festival name, paste your lineup (day headers
+                as DD.MM.YYYY or YYYY-MM-DD), then click Import.
               </li>
               <li>
                 <strong>Add manually</strong> — pick a date, stage, band name
@@ -132,9 +117,9 @@ function App() {
                 festival is running right now.
               </li>
               <li>
-                <strong>Filter</strong> — toggle Maybe / Interested / Must-see
-                (colored to match the legend) to show only acts at those
-                interest levels.
+                <strong>Filter</strong> — toggle Not interested / Maybe /
+                Interested / Must-see (the color boxes show which is which) to
+                show only acts at those interest levels.
               </li>
             </ul>
           </div>

@@ -73,6 +73,21 @@ function addAct(festival: Festival | null, dayDate: string, stageName: string, a
 
 const emptyForm = { day: '', stage: '', name: '', start: '', end: '' };
 
+const EXAMPLE_LINEUP = `10.07.2026
+Main Stage
+Band A, 20:00, 21:30
+Band B, 22:00, 23:30
+Second Stage
+Band C, 21:00, 22:00
+
+11.07.2026
+Main Stage
+Band D, 19:00, 20:00
+Band E, 23:00, 01:00
+Second Stage
+Band F, 20:30, 22:00
+Band G, 22:30, 00:00`;
+
 export default function Editor({ festival, setFestival }: Props) {
   const [pasteText, setPasteText] = useState('');
   const [prevFestival, setPrevFestival] = useState(festival);
@@ -92,6 +107,7 @@ export default function Editor({ festival, setFestival }: Props) {
   const [stageNameDraft, setStageNameDraft] = useState('');
   const [editingFestivalName, setEditingFestivalName] = useState(false);
   const [festivalNameEditDraft, setFestivalNameEditDraft] = useState('');
+  const [showExample, setShowExample] = useState(false);
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
@@ -175,6 +191,31 @@ export default function Editor({ festival, setFestival }: Props) {
     <div className="editor">
       <details>
         <summary>Lineup</summary>
+        <div className="import-row">
+          <input
+            type="text"
+            placeholder="Festival name"
+            value={festivalName}
+            onChange={e => setFestivalName(e.target.value)}
+          />
+          <textarea
+            rows={1}
+            placeholder="Paste lineup..."
+            value={pasteText}
+            onChange={e => setPasteText(e.target.value)}
+          />
+          <div className="import-row-actions">
+            <button onClick={handleImport}>Import</button>
+            <button
+              type="button"
+              onClick={() => setShowExample(s => !s)}
+              title="Show example format"
+            >
+              ?
+            </button>
+          </div>
+        </div>
+        {showExample && <pre className="import-example">{EXAMPLE_LINEUP}</pre>}
         {festival && (
           editingFestivalName ? (
             <div className="edit-inline">
@@ -211,7 +252,7 @@ export default function Editor({ festival, setFestival }: Props) {
               onClick={handleCopy}
               style={{ background: '#1a3a2a', color: '#6fc9a0', border: '1px solid #2a5a3a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
             >
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? 'Copied!' : 'Copy lineup'}
             </button>
           </div>
         )}
@@ -270,23 +311,6 @@ export default function Editor({ festival, setFestival }: Props) {
             </div>
           ))
         )}
-      </details>
-
-      <details>
-        <summary>Import</summary>
-        <input
-          type="text"
-          placeholder="Festival-Name"
-          value={festivalName}
-          onChange={e => setFestivalName(e.target.value)}
-        />
-        <textarea
-          rows={10}
-          placeholder={'10.07.2026\nMain Stage\nBand A, 21:00, 23:00'}
-          value={pasteText}
-          onChange={e => setPasteText(e.target.value)}
-        />
-        <button onClick={handleImport}>Import</button>
       </details>
 
       <details>

@@ -87,11 +87,22 @@
   color: #e0e0e0;
 }
 
+@media (max-width: 640px) {
+  .help-close {
+    padding: 10px;
+    font-size: 1.2rem;
+  }
+}
+
 .app-header h1 {
   font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: -0.3px;
   margin-bottom: 2px;
+}
+
+.editor .festival-name {
+  font-size: 1.1rem;
 }
 
 .festival-name {
@@ -113,6 +124,18 @@
 
 .icon-btn:hover {
   color: #e0e0e0;
+}
+
+@media (max-width: 640px) {
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px;
+    font-size: 0.9rem;
+  }
 }
 
 .app-footer {
@@ -261,7 +284,8 @@
 }
 
 /* action buttons (Importieren / Hinzufügen) */
-.editor :is(section, details) > button {
+.editor :is(section, details) > button,
+.import-row button {
   padding: 6px 16px;
   background: #2a2a2a;
   border: 1px solid #555;
@@ -269,8 +293,71 @@
   color: inherit;
 }
 
-.editor :is(section, details) > button:hover {
+.editor :is(section, details) > button:hover,
+.import-row button:hover {
   background: #383838;
+}
+
+.import-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.import-row input[type='text'] {
+  width: 140px;
+  flex: 0 0 auto;
+  margin-bottom: 0;
+}
+
+.import-row textarea {
+  width: auto;
+  flex: 1;
+  margin-bottom: 0;
+  resize: vertical;
+}
+
+.import-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .import-row {
+    flex-direction: column;
+  }
+
+  .import-row input[type='text'],
+  .import-row textarea,
+  .import-row-actions {
+    width: 100%;
+  }
+
+  .import-row textarea {
+    min-height: 72px;
+  }
+
+  .import-row-actions button {
+    min-height: 44px;
+  }
+
+  .import-row-actions button:first-child {
+    flex: 1;
+  }
+}
+
+.import-example {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: #aaa;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0 0 8px;
 }
 
 /* ── act list ── */
@@ -310,6 +397,22 @@
   color: #e0e0e0;
 }
 
+@media (max-width: 640px) {
+  .act-actions {
+    gap: 10px;
+  }
+
+  .editor li button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 4px;
+    font-size: 1.1rem;
+  }
+}
+
 .edit-inline {
   display: flex;
   align-items: center;
@@ -324,6 +427,71 @@
   padding: 2px 6px;
   margin-bottom: 0;
   font-size: 0.8rem;
+}
+
+/* ── day tabs & filter ── */
+.day-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.day-tab {
+  padding: 4px 12px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.day-tab.active {
+  background: #e0e0e0;
+  color: #121212;
+  font-weight: 700;
+}
+
+.filter-group {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.filter-btn {
+  box-sizing: border-box;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .filter-group {
+    flex-wrap: wrap;
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .help-btn,
+  .day-tab,
+  .filter-btn {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
 }
 
 /* ── timeline wrapper ── */
@@ -346,25 +514,69 @@
   overflow-x: auto;
 }
 
-/* ── interest level indicator dots (legend) ── */
-.interest-legend {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 10px;
-  font-size: 0.75rem;
-  color: #888;
-  align-items: center;
+/* ── band card ── */
+.band-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  border-radius: 3px;
+  padding: 2px 4px;
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-.interest-legend span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.band-card-seen {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  text-align: center;
+  font-size: 10px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  color: #777;
+  cursor: pointer;
 }
 
-.interest-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  flex-shrink: 0;
+.band-card-seen.seen {
+  background: #0a3318;
+  border-color: #163;
+  color: #6f6;
+}
+
+.band-card-name {
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 14px;
+}
+
+.band-card-time {
+  color: #aaa;
+  font-size: 10px;
+}
+
+@media (max-width: 640px) {
+  /* Absolutely-positioned overlay: enlarging it costs zero grid space,
+     so it doesn't affect how many stages fit on screen. */
+  .band-card-seen {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+  }
+
+  .band-card-name {
+    padding-right: 22px;
+  }
 }

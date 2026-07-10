@@ -210,17 +210,26 @@ export default function Timeline({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontWeight: 700,
-              fontSize: "12px",
               background: "#1e1e1e",
               overflow: "hidden",
-              whiteSpace: "nowrap",
               borderTop: "1px solid #333",
               padding: "0 8px",
               borderRadius: "4px",
             }}
           >
-            {info.stage.name}
+            <span
+              style={{
+                minWidth: 0,
+                overflow: "hidden",
+                wordBreak: "break-word",
+                textAlign: "center",
+                lineHeight: 1.2,
+                fontWeight: 700,
+                fontSize: "12px",
+              }}
+            >
+              {info.stage.name}
+            </span>
           </div>
         ))}
       </div>
