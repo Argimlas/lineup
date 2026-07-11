@@ -39,6 +39,6 @@ jobs:
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          rsync -avz --delete --omit-dir-times \
+          rsync -avz --delete --omit-dir-times --no-perms \
             -e "ssh -p ${DEPLOY_PORT:-22}" \
             dist/ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}"
