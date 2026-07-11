@@ -429,6 +429,27 @@
   font-size: 0.8rem;
 }
 
+.edit-inline button {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.edit-inline button:hover {
+  color: #e0e0e0;
+}
+
+.edit-inline-compact {
+  width: auto;
+}
+
+.edit-inline-compact input {
+  flex: 1 1 160px;
+  max-width: 240px;
+}
+
 /* ── day tabs & filter ── */
 .day-tabs-row {
   display: flex;

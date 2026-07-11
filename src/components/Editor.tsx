@@ -13,6 +13,10 @@ interface Props {
 
 const emptyForm = { day: '', stage: '', name: '', start: '', end: '' };
 
+const onEnterKey = (handler: () => void) => (e: React.KeyboardEvent) => {
+  if (e.key === 'Enter') handler();
+};
+
 const EXAMPLE_LINEUP = `10.07.2026
 Main Stage
 Band A, 20:00, 21:30
@@ -153,8 +157,13 @@ export default function Editor({ festival, setFestival }: Props) {
         {showExample && <pre className="import-example">{EXAMPLE_LINEUP}</pre>}
         {festival && (
           editingFestivalName ? (
-            <div className="edit-inline">
-              <input value={festivalNameEditDraft} onChange={e => setFestivalNameEditDraft(e.target.value)} autoFocus />
+            <div className="edit-inline edit-inline-compact">
+              <input
+                value={festivalNameEditDraft}
+                onChange={e => setFestivalNameEditDraft(e.target.value)}
+                onKeyDown={onEnterKey(handleSaveFestivalName)}
+                autoFocus
+              />
               <button onClick={handleSaveFestivalName}>✓</button>
               <button onClick={() => setEditingFestivalName(false)}>✕</button>
             </div>
@@ -181,7 +190,7 @@ export default function Editor({ festival, setFestival }: Props) {
               }}
               style={{ background: '#5a1a1a', color: '#e07070', border: '1px solid #7a2a2a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
             >
-              Delete all
+              Delete lineup
             </button>
             <button
               onClick={handleCopy}
@@ -203,8 +212,13 @@ export default function Editor({ festival, setFestival }: Props) {
                 <div key={stageKey}>
                   <h4>
                     {editingStageKey === stageKey ? (
-                      <span className="edit-inline">
-                        <input value={stageNameDraft} onChange={e => setStageNameDraft(e.target.value)} autoFocus />
+                      <span className="edit-inline edit-inline-compact">
+                        <input
+                          value={stageNameDraft}
+                          onChange={e => setStageNameDraft(e.target.value)}
+                          onKeyDown={onEnterKey(handleSaveStageEdit)}
+                          autoFocus
+                        />
                         <button onClick={handleSaveStageEdit}>✓</button>
                         <button onClick={() => setEditingStageKey(null)}>✕</button>
                       </span>
@@ -220,10 +234,10 @@ export default function Editor({ festival, setFestival }: Props) {
                       <li key={act.id}>
                         {editingId === act.id ? (
                           <div className="edit-inline">
-                            <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} placeholder="Band" />
-                            <input value={editForm.stage} onChange={e => setEditForm(f => ({ ...f, stage: e.target.value }))} placeholder="Stage" />
-                            <input value={editForm.start} onChange={e => setEditForm(f => ({ ...f, start: e.target.value }))} placeholder="Start" style={{ width: 70 }} />
-                            <input value={editForm.end} onChange={e => setEditForm(f => ({ ...f, end: e.target.value }))} placeholder="Ende" style={{ width: 70 }} />
+                            <input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} onKeyDown={onEnterKey(handleSaveEdit)} placeholder="Band" />
+                            <input value={editForm.stage} onChange={e => setEditForm(f => ({ ...f, stage: e.target.value }))} onKeyDown={onEnterKey(handleSaveEdit)} placeholder="Stage" />
+                            <input value={editForm.start} onChange={e => setEditForm(f => ({ ...f, start: e.target.value }))} onKeyDown={onEnterKey(handleSaveEdit)} placeholder="Start" style={{ width: 70 }} />
+                            <input value={editForm.end} onChange={e => setEditForm(f => ({ ...f, end: e.target.value }))} onKeyDown={onEnterKey(handleSaveEdit)} placeholder="Ende" style={{ width: 70 }} />
                             {editError && <span style={{ color: '#e07070', fontSize: '0.75rem' }}>{editError}</span>}
                             <button onClick={handleSaveEdit}>✓</button>
                             <button onClick={() => setEditingId(null)}>✕</button>

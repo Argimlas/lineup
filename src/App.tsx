@@ -104,7 +104,7 @@ function App() {
               <li>
                 <strong>Edit &amp; delete acts</strong> — in the Lineup
                 section, edit (✎) or delete (×) individual acts, or use
-                "Delete all" to start over.
+                "Delete lineup" to start over.
               </li>
               <li>
                 <strong>Mark interest &amp; seen</strong> — click an act to
