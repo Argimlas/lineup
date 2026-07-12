@@ -22,7 +22,7 @@
   border: 1px solid #555;
   background: #2a2a2a;
   color: #aaa;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   line-height: 1;
@@ -424,7 +424,7 @@
 .import-row {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
   align-items: flex-start;
 }
 
