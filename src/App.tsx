@@ -11,10 +11,10 @@ import type { Festival, InterestLevel } from "./types";
 import "./App.css";
 
 function App() {
-  const { consent, accept, decline } = useConsent();
+  const { consent, accept, decline, forget } = useConsent();
   const consented = consent === "accepted";
   const { festivals, activeId, setActiveId, createFestival, renameFestival, deleteFestival } = useFestivals(consented);
-  const { festival, interestMap, seenMap, setFestival: setFestivalRaw, setFestivalFor, replaceFestival: replaceFestivalRaw, setInterest, setSeen, clearStorage } = useLineup(
+  const { festival, interestMap, seenMap, setFestival: setFestivalRaw, setFestivalFor, replaceFestival: replaceFestivalRaw, setInterest, setSeen } = useLineup(
     activeId,
     consented,
   );
@@ -43,17 +43,8 @@ function App() {
     deleteFestival(activeId);
   };
 
-  const handlePrivacyReset = () => {
-    if (!window.confirm("This deletes all saved festivals and lineups from this browser. Continue?")) return;
-    try {
-      localStorage.removeItem("festival_index");
-      localStorage.removeItem("active_festival_id");
-      localStorage.removeItem("consent");
-      Object.keys(localStorage)
-        .filter(k => k.startsWith("lineup_"))
-        .forEach(k => localStorage.removeItem(k));
-    } catch { /* ignore */ }
-    window.location.reload();
+  const handleOpenPrivacySettings = () => {
+    forget();
   };
 
   const [activeDay, setActiveDay] = useState(() => findActiveDay(festival?.days ?? [], new Date())?.dayIndex ?? 0);
@@ -140,7 +131,7 @@ function App() {
         </a>
         <a href="https://argimlas.de/datenschutz.html">Privacy Policy</a>
         <a href="https://argimlas.de/impressum.html">Imprint</a>
-        <button className="footer-privacy-btn" onClick={handlePrivacyReset}>
+        <button className="footer-privacy-btn" onClick={handleOpenPrivacySettings}>
           Privacy settings
         </button>
       </footer>
@@ -209,7 +200,15 @@ function App() {
           </span>
           <div className="consent-actions">
             <button onClick={accept}>I accept saving my data</button>
-            <button onClick={() => { clearStorage(); decline(); }}>I decline saving my data</button>
+            <button
+              onClick={() => {
+                try { localStorage.clear(); } catch { /* ignore */ }
+                decline();
+                window.location.reload();
+              }}
+            >
+              I decline saving my data
+            </button>
           </div>
         </div>
       )}

@@ -69,10 +69,5 @@ export function useLineup(festivalId = 'default', consented = false) {
   const setSeen = (actId: string) =>
     update(d => ({ ...d, seenMap: { ...d.seenMap, [actId]: !d.seenMap[actId] } }));
 
-  const clearStorage = () => {
-    try { localStorage.removeItem(`lineup_${festivalId}`); } catch { /* ignore */ }
-    setCache(c => ({ ...c, [festivalId]: defaultData }));
-  };
-
-  return { festival: data.festival, interestMap: data.interestMap, seenMap: data.seenMap, setFestival, setFestivalFor, replaceFestival, setInterest, setSeen, clearStorage };
+  return { festival: data.festival, interestMap: data.interestMap, seenMap: data.seenMap, setFestival, setFestivalFor, replaceFestival, setInterest, setSeen };
 }

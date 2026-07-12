@@ -50,5 +50,10 @@ export function useConsent() {
     setConsent('declined');
   };
 
-  return { consent, accept, decline };
+  const forget = () => {
+    try { localStorage.removeItem(CONSENT_KEY); } catch { /* ignore */ }
+    setConsent(null);
+  };
+
+  return { consent, accept, decline, forget };
 }
