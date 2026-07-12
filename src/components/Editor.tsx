@@ -189,13 +189,13 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
         <div className="import-row">
           <input
             type="text"
-            placeholder="Festivalname …"
+            placeholder="Festival name ..."
             value={festivalName}
             onChange={e => setFestivalName(e.target.value)}
           />
           <textarea
             rows={1}
-            placeholder="Paste lineup..."
+            placeholder="Paste lineup ..."
             value={pasteText}
             onChange={e => setPasteText(e.target.value)}
           />

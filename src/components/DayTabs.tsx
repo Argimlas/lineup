@@ -16,15 +16,17 @@ const ACCENT: Record<InterestLevel, string> = { 0: '#aaa', 1: '#5fa8ff', 2: '#e8
 export default function DayTabs({ days, activeIndex, onSelect, selectedLevels, onToggleLevel }: Props) {
   return (
     <div className="day-tabs-row">
-      {days.map((day, i) => (
-        <button
-          key={day.date}
-          className={`day-tab${i === activeIndex ? ' active' : ''}`}
-          onClick={() => onSelect(i)}
-        >
-          {formatDayLabel(day.date)}
-        </button>
-      ))}
+      <div className="day-tabs-scroll">
+        {days.map((day, i) => (
+          <button
+            key={day.date}
+            className={`day-tab${i === activeIndex ? ' active' : ''}`}
+            onClick={() => onSelect(i)}
+          >
+            {formatDayLabel(day.date)}
+          </button>
+        ))}
+      </div>
       <div className="filter-group">
         <span className="filter-label">Filter:</span>
         {FILTER_LEVELS.map((level) => {
