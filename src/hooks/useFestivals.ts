@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Festival } from '../types';
 import { todayISODate } from '../lib/date';
+import { safeGet, safeSet, safeRemove } from '../lib/storage';
 
 export interface FestivalMeta {
   id: string;
@@ -11,25 +12,12 @@ const INDEX_KEY = 'festival_index';
 const DEFAULT_INDEX: FestivalMeta[] = [{ id: 'default', name: 'Festival' }];
 
 function loadIndex(): FestivalMeta[] {
-  try {
-    const raw = localStorage.getItem(INDEX_KEY);
-    if (!raw) return DEFAULT_INDEX;
-    const parsed = JSON.parse(raw) as FestivalMeta[];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_INDEX;
-  } catch {
-    return DEFAULT_INDEX;
-  }
+  const parsed = safeGet<FestivalMeta[]>(INDEX_KEY, DEFAULT_INDEX);
+  return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_INDEX;
 }
 
 function loadFestivalDays(id: string): Festival['days'] {
-  try {
-    const raw = localStorage.getItem(`lineup_${id}`);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as { festival?: Festival | null };
-    return parsed.festival?.days ?? [];
-  } catch {
-    return [];
-  }
+  return safeGet<{ festival?: Festival | null }>(`lineup_${id}`, {}).festival?.days ?? [];
 }
 
 // Picks whichever festival is currently running (today falls within its
@@ -72,7 +60,7 @@ export function useFestivals(consented: boolean) {
 
   useEffect(() => {
     if (!consented) return;
-    try { localStorage.setItem(INDEX_KEY, JSON.stringify(index)); } catch { /* ignore */ }
+    safeSet(INDEX_KEY, index);
   }, [index, consented]);
 
   const createFestival = (name: string): string | null => {
@@ -96,7 +84,7 @@ export function useFestivals(consented: boolean) {
     const safeNext = next.length > 0 ? next : [{ id: crypto.randomUUID(), name: 'Festival' }];
     setIndex(safeNext);
     if (id === activeId) setActiveId(safeNext[0].id);
-    try { localStorage.removeItem(`lineup_${id}`); } catch { /* ignore */ }
+    safeRemove(`lineup_${id}`);
   };
 
   return { festivals: index, activeId, setActiveId, createFestival, renameFestival, deleteFestival };

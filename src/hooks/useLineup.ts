@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Festival, InterestLevel, InterestMap } from '../types';
+import { safeGet, safeSet } from '../lib/storage';
 
 interface LineupData {
   festival: Festival | null;
@@ -10,12 +11,7 @@ interface LineupData {
 const defaultData: LineupData = { festival: null, interestMap: {}, seenMap: {} };
 
 function loadFromStorage(festivalId: string): LineupData {
-  try {
-    const raw = localStorage.getItem(`lineup_${festivalId}`);
-    return raw ? { ...defaultData, ...(JSON.parse(raw) as LineupData) } : defaultData;
-  } catch {
-    return defaultData;
-  }
+  return { ...defaultData, ...safeGet<Partial<LineupData>>(`lineup_${festivalId}`, {}) };
 }
 
 export function useLineup(festivalId = 'default', consented = false) {
@@ -51,7 +47,7 @@ export function useLineup(festivalId = 'default', consented = false) {
 
   useEffect(() => {
     if (!consented) return;
-    try { localStorage.setItem(`lineup_${festivalId}`, JSON.stringify(data)); } catch { /* ignore */ }
+    safeSet(`lineup_${festivalId}`, data);
   }, [festivalId, data, consented]);
 
   const setFestival = (festival: Festival | null) =>
@@ -70,9 +66,7 @@ export function useLineup(festivalId = 'default', consented = false) {
   const setFestivalFor = (id: string, festival: Festival | null) => {
     setCache(c => {
       const next = { ...(c[id] ?? (consented ? loadFromStorage(id) : defaultData)), festival };
-      if (consented) {
-        try { localStorage.setItem(`lineup_${id}`, JSON.stringify(next)); } catch { /* ignore */ }
-      }
+      if (consented) safeSet(`lineup_${id}`, next);
       return { ...c, [id]: next };
     });
   };
