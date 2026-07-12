@@ -12,3 +12,8 @@ export function addDays(date: string, days: number): string {
 export function formatDayLabel(date: string): string {
   return parseISODate(date).toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: '2-digit' });
 }
+
+export function todayISODate(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

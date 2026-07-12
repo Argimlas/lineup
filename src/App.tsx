@@ -31,6 +31,12 @@ function App() {
     if (f?.name) renameFestival(activeId, f.name);
   };
 
+  const handleNewFestival = () => {
+    const name = window.prompt("Name for the new festival?", "New Festival");
+    if (!name || !name.trim()) return;
+    if (!createFestival(name.trim())) alert("You can only have up to 4 festivals.");
+  };
+
   const handleDeleteFestival = () => {
     const meta = festivals.find(f => f.id === activeId);
     if (!window.confirm(`Delete festival "${meta?.name ?? ""}" and all its data? This cannot be undone.`)) return;
@@ -82,7 +88,12 @@ function App() {
       <header className="app-header">
         <div className="app-header-row">
           <h1>Lineup</h1>
-          <FestivalTabs festivals={festivals} activeId={activeId} onSelect={setActiveId} />
+          <div className="festival-picker-group">
+            <FestivalTabs festivals={festivals} activeId={activeId} onSelect={setActiveId} />
+            <button className="header-add-btn" onClick={handleNewFestival} title="New festival">
+              +
+            </button>
+          </div>
           <button className="help-btn" onClick={() => setShowHelp(true)}>
             Help
           </button>
@@ -142,15 +153,16 @@ function App() {
             <h2>How to use</h2>
             <ul>
               <li>
-                <strong>Multiple festivals</strong> — use the tabs next to
-                the title to switch between up to 4 festivals. Add or delete
-                festivals from the Import/Edit section below.
+                <strong>Multiple festivals</strong> — use the tabs (or the
+                dropdown on mobile) next to the title to switch between up to
+                4 festivals; the one running now, or the next upcoming one,
+                is selected automatically. Click + next to it to add another.
               </li>
               <li>
                 <strong>Import lineup</strong> — open the Import/Edit section,
-                click one of the "Import festival" tabs to load a lineup
-                published on the site in one click, or paste your own lineup
-                (day headers as DD.MM.YYYY or YYYY-MM-DD) and click Import.
+                click one of the lineup presets to load it in one click, or
+                paste your own lineup (day headers as DD.MM.YYYY or
+                YYYY-MM-DD) and click Import.
               </li>
               <li>
                 <strong>Add manually</strong> — pick a date, stage, band name

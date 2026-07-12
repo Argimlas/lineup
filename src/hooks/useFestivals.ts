@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import type { Festival } from '../types';
+import { todayISODate } from '../lib/date';
 
 export interface FestivalMeta {
   id: string;
@@ -6,7 +8,6 @@ export interface FestivalMeta {
 }
 
 const INDEX_KEY = 'festival_index';
-const ACTIVE_KEY = 'active_festival_id';
 const DEFAULT_INDEX: FestivalMeta[] = [{ id: 'default', name: 'Festival' }];
 
 function loadIndex(): FestivalMeta[] {
@@ -20,27 +21,45 @@ function loadIndex(): FestivalMeta[] {
   }
 }
 
-function loadActiveId(index: FestivalMeta[]): string {
+function loadFestivalDays(id: string): Festival['days'] {
   try {
-    const raw = localStorage.getItem(ACTIVE_KEY);
-    if (raw && index.some(f => f.id === raw)) return raw;
-  } catch { /* ignore */ }
-  return index[0].id;
+    const raw = localStorage.getItem(`lineup_${id}`);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as { festival?: Festival | null };
+    return parsed.festival?.days ?? [];
+  } catch {
+    return [];
+  }
+}
+
+// Picks whichever festival is currently running (today falls within its
+// first/last day), or failing that the soonest upcoming one — falls back to
+// the first festival if none have dates at all (e.g. still empty).
+function pickActiveFestival(index: FestivalMeta[]): string {
+  const today = todayISODate();
+  let upcoming: { id: string; start: string } | null = null;
+
+  for (const meta of index) {
+    const days = loadFestivalDays(meta.id);
+    if (days.length === 0) continue;
+    const dates = days.map(d => d.date).sort();
+    const start = dates[0];
+    const end = dates[dates.length - 1];
+    if (start <= today && today <= end) return meta.id;
+    if (start > today && (!upcoming || start < upcoming.start)) upcoming = { id: meta.id, start };
+  }
+
+  return upcoming?.id ?? index[0].id;
 }
 
 export function useFestivals(consented: boolean) {
   const [index, setIndex] = useState<FestivalMeta[]>(loadIndex);
-  const [activeId, setActiveId] = useState<string>(() => loadActiveId(loadIndex()));
+  const [activeId, setActiveId] = useState<string>(() => pickActiveFestival(loadIndex()));
 
   useEffect(() => {
     if (!consented) return;
     try { localStorage.setItem(INDEX_KEY, JSON.stringify(index)); } catch { /* ignore */ }
   }, [index, consented]);
-
-  useEffect(() => {
-    if (!consented) return;
-    try { localStorage.setItem(ACTIVE_KEY, activeId); } catch { /* ignore */ }
-  }, [activeId, consented]);
 
   const createFestival = (name: string): string | null => {
     if (index.length >= 4) return null;

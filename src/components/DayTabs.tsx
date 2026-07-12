@@ -10,7 +10,7 @@ interface Props {
   onToggleLevel: (level: InterestLevel) => void;
 }
 
-const FILTER_LEVELS: InterestLevel[] = [0, 1, 2, 3];
+const FILTER_LEVELS: InterestLevel[] = [3, 2, 1, 0];
 const ACCENT: Record<InterestLevel, string> = { 0: '#aaa', 1: '#5fa8ff', 2: '#e8c547', 3: '#6f6' };
 
 export default function DayTabs({ days, activeIndex, onSelect, selectedLevels, onToggleLevel }: Props) {

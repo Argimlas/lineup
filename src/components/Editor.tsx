@@ -105,12 +105,6 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
     loadPresetInto(preset, 'current');
   };
 
-  const handleNewFestivalClick = () => {
-    const name = window.prompt('Name for the new festival?', 'New Festival');
-    if (!name || !name.trim()) return;
-    if (!onCreateFestival(name.trim())) alert('You can only have up to 4 festivals.');
-  };
-
   const handleAdd = () => {
     const { day, stage, name, start, end } = form;
     if (!day.trim() || !stage.trim() || !name.trim()) return;
@@ -193,17 +187,12 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
         )}
         {presetError && <p className="preset-error">{presetError}</p>}
         <div className="import-row">
-          <div className="import-name-group">
-            <input
-              type="text"
-              placeholder="Name Festival…"
-              value={festivalName}
-              onChange={e => setFestivalName(e.target.value)}
-            />
-            <button type="button" className="name-add-btn" onClick={handleNewFestivalClick} title="New festival">
-              +
-            </button>
-          </div>
+          <input
+            type="text"
+            placeholder="Festivalname …"
+            value={festivalName}
+            onChange={e => setFestivalName(e.target.value)}
+          />
           <textarea
             rows={1}
             placeholder="Paste lineup..."
