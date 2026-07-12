@@ -10,6 +10,7 @@ import { fetchPresetManifest, fetchPresetLineup, type PresetMeta } from '../lib/
 interface Props {
   festival: Festival | null;
   setFestival: (f: Festival | null) => void;
+  onReplaceFestival: (f: Festival | null) => void;
   festivalId: string;
   onCreateFestival: (name: string) => string | null;
   onSetFestivalFor: (id: string, festival: Festival) => void;
@@ -38,7 +39,7 @@ Second Stage
 Band F, 20:30, 22:00
 Band G, 22:30, 00:00`;
 
-export default function Editor({ festival, setFestival, festivalId, onCreateFestival, onSetFestivalFor, onDeleteFestival }: Props) {
+export default function Editor({ festival, setFestival, onReplaceFestival, festivalId, onCreateFestival, onSetFestivalFor, onDeleteFestival }: Props) {
   const [pasteText, setPasteText] = useState('');
   const [presets, setPresets] = useState<PresetMeta[]>([]);
   const [presetError, setPresetError] = useState('');
@@ -48,11 +49,12 @@ export default function Editor({ festival, setFestival, festivalId, onCreateFest
     fetchPresetManifest().then(setPresets);
   }, []);
   const [prevFestival, setPrevFestival] = useState(festival);
-  const [festivalName, setFestivalName] = useState(festival?.name ?? 'Festival');
+  const [festivalName, setFestivalName] = useState(festival?.name ?? '');
   if (festival !== prevFestival) {
     setPrevFestival(festival);
-    setFestivalName(festival?.name ?? 'Festival');
+    setFestivalName(festival?.name ?? '');
   }
+  const [importError, setImportError] = useState('');
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,7 +70,12 @@ export default function Editor({ festival, setFestival, festivalId, onCreateFest
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
-    setFestival(parseLineup(pasteText, festivalName, festivalId));
+    if (!festivalName.trim()) {
+      setImportError('Name your festival first.');
+      return;
+    }
+    setImportError('');
+    onReplaceFestival(parseLineup(pasteText, festivalName.trim(), festivalId));
     setPasteText('');
   };
 
@@ -77,7 +84,7 @@ export default function Editor({ festival, setFestival, festivalId, onCreateFest
     fetchPresetLineup(preset.file)
       .then(text => {
         if (target === 'current') {
-          setFestival(parseLineup(text, preset.name, festivalId));
+          onReplaceFestival(parseLineup(text, preset.name, festivalId));
           return;
         }
         const newId = onCreateFestival(preset.name);
@@ -174,25 +181,29 @@ export default function Editor({ festival, setFestival, festivalId, onCreateFest
     <div className="editor">
       <details>
         <summary>Import/Edit</summary>
-        <h3>Import festival</h3>
-        <div className="preset-tabs-row">
-          {presets.slice(0, 4).map(p => (
-            <button key={p.id} type="button" className="preset-tab" onClick={() => handlePresetTabClick(p)}>
-              {p.name}
-            </button>
-          ))}
-          <button type="button" className="preset-tab preset-tab-new" onClick={handleNewFestivalClick}>
-            + New festival
-          </button>
-        </div>
+        {presets.length > 0 && (
+          <div className="preset-tabs-row">
+            <span className="preset-label">Lineup presets:</span>
+            {presets.slice(0, 4).map(p => (
+              <button key={p.id} type="button" className="preset-tab" onClick={() => handlePresetTabClick(p)}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+        )}
         {presetError && <p className="preset-error">{presetError}</p>}
         <div className="import-row">
-          <input
-            type="text"
-            placeholder="Festival name"
-            value={festivalName}
-            onChange={e => setFestivalName(e.target.value)}
-          />
+          <div className="import-name-group">
+            <input
+              type="text"
+              placeholder="Name Festival…"
+              value={festivalName}
+              onChange={e => setFestivalName(e.target.value)}
+            />
+            <button type="button" className="name-add-btn" onClick={handleNewFestivalClick} title="New festival">
+              +
+            </button>
+          </div>
           <textarea
             rows={1}
             placeholder="Paste lineup..."
@@ -210,6 +221,7 @@ export default function Editor({ festival, setFestival, festivalId, onCreateFest
             </button>
           </div>
         </div>
+        {importError && <p className="preset-error">{importError}</p>}
         {showExample && <pre className="import-example">{EXAMPLE_LINEUP}</pre>}
         {festival && (
           editingFestivalName ? (

@@ -14,7 +14,7 @@ function App() {
   const { consent, accept, decline } = useConsent();
   const consented = consent === "accepted";
   const { festivals, activeId, setActiveId, createFestival, renameFestival, deleteFestival } = useFestivals(consented);
-  const { festival, interestMap, seenMap, setFestival: setFestivalRaw, setFestivalFor, setInterest, setSeen, clearStorage } = useLineup(
+  const { festival, interestMap, seenMap, setFestival: setFestivalRaw, setFestivalFor, replaceFestival: replaceFestivalRaw, setInterest, setSeen, clearStorage } = useLineup(
     activeId,
     consented,
   );
@@ -23,6 +23,11 @@ function App() {
   // renaming (or importing under a new name) doesn't require a second step.
   const setFestival = (f: Festival | null) => {
     setFestivalRaw(f);
+    if (f?.name) renameFestival(activeId, f.name);
+  };
+
+  const replaceFestival = (f: Festival | null) => {
+    replaceFestivalRaw(f);
     if (f?.name) renameFestival(activeId, f.name);
   };
 
@@ -108,6 +113,7 @@ function App() {
       <Editor
         festival={festival}
         setFestival={setFestival}
+        onReplaceFestival={replaceFestival}
         festivalId={activeId}
         onCreateFestival={createFestival}
         onSetFestivalFor={setFestivalFor}

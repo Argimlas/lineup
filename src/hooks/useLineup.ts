@@ -43,6 +43,12 @@ export function useLineup(festivalId = 'default', consented = false) {
   const setFestival = (festival: Festival | null) =>
     update(d => ({ ...d, festival }));
 
+  // Used for a wholesale replace (Import, preset Override) rather than an
+  // incremental edit (rename, add/edit/delete act): old interest/seen marks
+  // shouldn't carry over onto what is effectively a new lineup.
+  const replaceFestival = (festival: Festival | null) =>
+    update(d => ({ ...d, festival, interestMap: {}, seenMap: {} }));
+
   // Writes into an arbitrary festival's slot regardless of which one is
   // currently active. Needed right after creating a new festival: `activeId`
   // hasn't re-rendered into this hook's `festivalId` prop yet, so `update`
@@ -68,5 +74,5 @@ export function useLineup(festivalId = 'default', consented = false) {
     setCache(c => ({ ...c, [festivalId]: defaultData }));
   };
 
-  return { festival: data.festival, interestMap: data.interestMap, seenMap: data.seenMap, setFestival, setFestivalFor, setInterest, setSeen, clearStorage };
+  return { festival: data.festival, interestMap: data.interestMap, seenMap: data.seenMap, setFestival, setFestivalFor, replaceFestival, setInterest, setSeen, clearStorage };
 }

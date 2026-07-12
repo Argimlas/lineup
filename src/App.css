@@ -140,7 +140,18 @@
     flex-wrap: wrap;
   }
 
+  /* Keep "Lineup" + Help together on the first line; push the festival
+     tabs onto their own full-width line below, instead of after Help. */
+  .app-header-row h1 {
+    order: 1;
+  }
+
+  .app-header-row .help-btn {
+    order: 2;
+  }
+
   .festival-tabs-row {
+    order: 3;
     flex-basis: 100%;
   }
 
@@ -359,8 +370,8 @@
 }
 
 .import-row input[type='text'] {
-  width: 140px;
-  flex: 0 0 auto;
+  flex: 1;
+  min-width: 0;
   margin-bottom: 0;
 }
 
@@ -377,12 +388,37 @@
   flex-shrink: 0;
 }
 
+.import-name-group {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 140px;
+}
+
+.name-add-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.name-add-btn:hover {
+  background: #383838;
+}
+
 @media (max-width: 640px) {
   .import-row {
     flex-direction: column;
   }
 
-  .import-row input[type='text'],
+  .import-name-group,
   .import-row textarea,
   .import-row-actions {
     width: 100%;
@@ -398,6 +434,11 @@
 
   .import-row-actions button:first-child {
     flex: 1;
+  }
+
+  .name-add-btn {
+    width: 44px;
+    height: 44px;
   }
 }
 
@@ -435,9 +476,9 @@
   background: #383838;
 }
 
-.preset-tab-new {
-  border-style: dashed;
-  color: #aaa;
+.preset-label {
+  color: #888;
+  font-size: 0.85rem;
 }
 
 .preset-error {
