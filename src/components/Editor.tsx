@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Festival, Act } from '../types';
 import { parseLineup } from '../lib/parser';
 import { serializeLineup } from '../lib/serialize';
 import { formatTime, parseTimeToMinutes } from '../lib/time';
 import { formatDayLabel } from '../lib/date';
 import { deleteAct, addAct, updateAct, renameStage } from '../lib/festival';
+import { fetchPresetManifest, fetchPresetLineup, type PresetMeta } from '../lib/presets';
 
 interface Props {
   festival: Festival | null;
   setFestival: (f: Festival | null) => void;
+  festivalId: string;
+  onCreateFestival: (name: string) => string | null;
+  onSetFestivalFor: (id: string, festival: Festival) => void;
+  onDeleteFestival: () => void;
 }
 
 const emptyForm = { day: '', stage: '', name: '', start: '', end: '' };
@@ -33,8 +38,15 @@ Second Stage
 Band F, 20:30, 22:00
 Band G, 22:30, 00:00`;
 
-export default function Editor({ festival, setFestival }: Props) {
+export default function Editor({ festival, setFestival, festivalId, onCreateFestival, onSetFestivalFor, onDeleteFestival }: Props) {
   const [pasteText, setPasteText] = useState('');
+  const [presets, setPresets] = useState<PresetMeta[]>([]);
+  const [presetError, setPresetError] = useState('');
+  const [pendingPreset, setPendingPreset] = useState<PresetMeta | null>(null);
+
+  useEffect(() => {
+    fetchPresetManifest().then(setPresets);
+  }, []);
   const [prevFestival, setPrevFestival] = useState(festival);
   const [festivalName, setFestivalName] = useState(festival?.name ?? 'Festival');
   if (festival !== prevFestival) {
@@ -56,8 +68,40 @@ export default function Editor({ festival, setFestival }: Props) {
 
   const handleImport = () => {
     if (!pasteText.trim()) return;
-    setFestival(parseLineup(pasteText, festivalName));
+    setFestival(parseLineup(pasteText, festivalName, festivalId));
     setPasteText('');
+  };
+
+  const loadPresetInto = (preset: PresetMeta, target: 'current' | 'new') => {
+    setPresetError('');
+    fetchPresetLineup(preset.file)
+      .then(text => {
+        if (target === 'current') {
+          setFestival(parseLineup(text, preset.name, festivalId));
+          return;
+        }
+        const newId = onCreateFestival(preset.name);
+        if (!newId) {
+          alert('You can only have up to 4 festivals.');
+          return;
+        }
+        onSetFestivalFor(newId, parseLineup(text, preset.name, newId));
+      })
+      .catch(() => setPresetError('Could not load this lineup.'));
+  };
+
+  const handlePresetTabClick = (preset: PresetMeta) => {
+    if (festival && festival.days.length > 0) {
+      setPendingPreset(preset);
+      return;
+    }
+    loadPresetInto(preset, 'current');
+  };
+
+  const handleNewFestivalClick = () => {
+    const name = window.prompt('Name for the new festival?', 'New Festival');
+    if (!name || !name.trim()) return;
+    if (!onCreateFestival(name.trim())) alert('You can only have up to 4 festivals.');
   };
 
   const handleAdd = () => {
@@ -72,7 +116,7 @@ export default function Editor({ festival, setFestival }: Props) {
     const resolvedEnd = endTime <= startTime ? endTime + 1440 : endTime;
     setFormError('');
     const act = { name: name.trim(), startTime, endTime: resolvedEnd };
-    setFestival(addAct(festival, day.trim(), stage.trim(), act));
+    setFestival(addAct(festival, day.trim(), stage.trim(), act, festivalId));
     setForm(emptyForm);
   };
 
@@ -129,7 +173,19 @@ export default function Editor({ festival, setFestival }: Props) {
   return (
     <div className="editor">
       <details>
-        <summary>Lineup</summary>
+        <summary>Import/Edit</summary>
+        <h3>Import festival</h3>
+        <div className="preset-tabs-row">
+          {presets.slice(0, 4).map(p => (
+            <button key={p.id} type="button" className="preset-tab" onClick={() => handlePresetTabClick(p)}>
+              {p.name}
+            </button>
+          ))}
+          <button type="button" className="preset-tab preset-tab-new" onClick={handleNewFestivalClick}>
+            + New festival
+          </button>
+        </div>
+        {presetError && <p className="preset-error">{presetError}</p>}
         <div className="import-row">
           <input
             type="text"
@@ -182,24 +238,22 @@ export default function Editor({ festival, setFestival }: Props) {
             </p>
           )
         )}
-        {festival && festival.days.length > 0 && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-            <button
-              onClick={() => {
-                if (window.confirm('Delete the entire lineup?')) setFestival(null);
-              }}
-              style={{ background: '#5a1a1a', color: '#e07070', border: '1px solid #7a2a2a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
-            >
-              Delete lineup
-            </button>
+        <div style={{ display: 'flex', gap: 8, marginTop: 16, marginBottom: 8 }}>
+          <button
+            onClick={onDeleteFestival}
+            style={{ background: '#5a1a1a', color: '#e07070', border: '1px solid #7a2a2a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
+          >
+            Delete festival
+          </button>
+          {festival && festival.days.length > 0 && (
             <button
               onClick={handleCopy}
               style={{ background: '#1a3a2a', color: '#6fc9a0', border: '1px solid #2a5a3a', borderRadius: 4, padding: '3px 10px', cursor: 'pointer', fontSize: '0.85rem' }}
             >
               {copied ? 'Copied!' : 'Copy lineup'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
         {!festival || festival.days.length === 0 ? (
           <p>No lineup entered yet.</p>
         ) : (
@@ -272,6 +326,25 @@ export default function Editor({ festival, setFestival }: Props) {
         <button onClick={handleAdd}>Add</button>
         {formError && <p style={{ color: '#e07070', fontSize: '0.8rem', margin: '4px 0 0' }}>{formError}</p>}
       </details>
+
+      {pendingPreset && (
+        <div className="confirm-overlay" onClick={() => setPendingPreset(null)}>
+          <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+            <p>
+              "{pendingPreset.name}" — this festival already has a lineup. What do you want to do?
+            </p>
+            <div className="confirm-actions">
+              <button onClick={() => { loadPresetInto(pendingPreset, 'current'); setPendingPreset(null); }}>
+                Override current
+              </button>
+              <button onClick={() => { loadPresetInto(pendingPreset, 'new'); setPendingPreset(null); }}>
+                Load as new festival
+              </button>
+              <button onClick={() => setPendingPreset(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

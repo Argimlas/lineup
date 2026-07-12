@@ -111,6 +111,46 @@
   margin: 0;
 }
 
+/* ── festival tabs ── */
+.festival-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.festival-tab {
+  padding: 4px 12px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.festival-tab.active {
+  background: #e0e0e0;
+  color: #121212;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .app-header-row {
+    flex-wrap: wrap;
+  }
+
+  .festival-tabs-row {
+    flex-basis: 100%;
+  }
+
+  .festival-tab {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
 .icon-btn {
   background: none;
   border: none;
@@ -371,6 +411,91 @@
   white-space: pre;
   overflow-x: auto;
   margin: 0 0 8px;
+}
+
+.preset-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.preset-tab {
+  padding: 4px 12px;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.preset-tab:hover {
+  background: #383838;
+}
+
+.preset-tab-new {
+  border-style: dashed;
+  color: #aaa;
+}
+
+.preset-error {
+  font-size: 0.75rem;
+  color: #e07070;
+}
+
+@media (max-width: 640px) {
+  .preset-tab {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ── confirm modal (preset override) ── */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.confirm-modal {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px 24px;
+  max-width: 360px;
+  width: 90%;
+}
+
+.confirm-modal p {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin: 0 0 16px;
+}
+
+.confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.confirm-actions button {
+  padding: 8px 12px;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.confirm-actions button:hover {
+  background: #383838;
 }
 
 /* ── act list ── */

@@ -19,13 +19,13 @@ function normalizeDate(line: string): string {
   return line;
 }
 
-export function parseLineup(text: string, festivalName = 'Festival'): Festival {
+export function parseLineup(text: string, festivalName = 'Festival', festivalId = 'default'): Festival {
   const lines = text.split('\n');
 
   let state: State = 'AWAITING_DAY';
   let currentDate = '';
   let currentStageName = '';
-  let festival: Festival = { id: 'default', name: festivalName, days: [] };
+  let festival: Festival = { id: festivalId, name: festivalName, days: [] };
 
   for (const raw of lines) {
     const line = raw.trim();

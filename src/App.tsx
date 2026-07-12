@@ -1,23 +1,64 @@
 import { useState } from "react";
 import { useLineup } from "./hooks/useLineup";
+import { useFestivals } from "./hooks/useFestivals";
 import { useConsent } from "./hooks/useConsent";
 import Editor from "./components/Editor";
 import Timeline from "./components/Timeline";
 import DayTabs from "./components/DayTabs";
+import FestivalTabs from "./components/FestivalTabs";
 import { findActiveDay } from "./lib/dayWindow";
-import type { InterestLevel } from "./types";
+import type { Festival, InterestLevel } from "./types";
 import "./App.css";
 
 function App() {
-  const { consent, accept, decline, reset } = useConsent();
-  const { festival, interestMap, seenMap, setFestival, setInterest, setSeen, clearStorage } = useLineup(
-    "default",
-    consent === "accepted",
+  const { consent, accept, decline } = useConsent();
+  const consented = consent === "accepted";
+  const { festivals, activeId, setActiveId, createFestival, renameFestival, deleteFestival } = useFestivals(consented);
+  const { festival, interestMap, seenMap, setFestival: setFestivalRaw, setFestivalFor, setInterest, setSeen, clearStorage } = useLineup(
+    activeId,
+    consented,
   );
+
+  // Every festival write also keeps the switcher's name label in sync, so
+  // renaming (or importing under a new name) doesn't require a second step.
+  const setFestival = (f: Festival | null) => {
+    setFestivalRaw(f);
+    if (f?.name) renameFestival(activeId, f.name);
+  };
+
+  const handleDeleteFestival = () => {
+    const meta = festivals.find(f => f.id === activeId);
+    if (!window.confirm(`Delete festival "${meta?.name ?? ""}" and all its data? This cannot be undone.`)) return;
+    deleteFestival(activeId);
+  };
+
+  const handlePrivacyReset = () => {
+    if (!window.confirm("This deletes all saved festivals and lineups from this browser. Continue?")) return;
+    try {
+      localStorage.removeItem("festival_index");
+      localStorage.removeItem("active_festival_id");
+      localStorage.removeItem("consent");
+      Object.keys(localStorage)
+        .filter(k => k.startsWith("lineup_"))
+        .forEach(k => localStorage.removeItem(k));
+    } catch { /* ignore */ }
+    window.location.reload();
+  };
+
   const [activeDay, setActiveDay] = useState(() => findActiveDay(festival?.days ?? [], new Date())?.dayIndex ?? 0);
-  const [scrollToMinutes] = useState<number | undefined>(() => findActiveDay(festival?.days ?? [], new Date())?.offsetMinutes);
+  const [scrollToMinutes, setScrollToMinutes] = useState<number | undefined>(() => findActiveDay(festival?.days ?? [], new Date())?.offsetMinutes);
   const [selectedLevels, setSelectedLevels] = useState<Set<InterestLevel>>(new Set());
   const [showHelp, setShowHelp] = useState(false);
+  const [loadedFestivalId, setLoadedFestivalId] = useState(activeId);
+
+  // Switching festivals should re-run the "jump to today" logic against the
+  // newly active festival's own days, same as on first load.
+  if (activeId !== loadedFestivalId) {
+    setLoadedFestivalId(activeId);
+    const active = findActiveDay(festival?.days ?? [], new Date());
+    setActiveDay(active?.dayIndex ?? 0);
+    setScrollToMinutes(active?.offsetMinutes);
+  }
 
   const toggleLevel = (level: InterestLevel) => {
     setSelectedLevels((prev) => {
@@ -36,11 +77,11 @@ function App() {
       <header className="app-header">
         <div className="app-header-row">
           <h1>Lineup</h1>
+          <FestivalTabs festivals={festivals} activeId={activeId} onSelect={setActiveId} />
           <button className="help-btn" onClick={() => setShowHelp(true)}>
             Help
           </button>
         </div>
-        {festival?.name && <p className="festival-name">{festival.name}</p>}
       </header>
       {days.length > 0 && (
         <>
@@ -64,7 +105,14 @@ function App() {
           )}
         </>
       )}
-      <Editor festival={festival} setFestival={setFestival} />
+      <Editor
+        festival={festival}
+        setFestival={setFestival}
+        festivalId={activeId}
+        onCreateFestival={createFestival}
+        onSetFestivalFor={setFestivalFor}
+        onDeleteFestival={handleDeleteFestival}
+      />
       <footer className="app-footer">
         <a
           href="https://github.com/Argimlas/lineup"
@@ -75,7 +123,7 @@ function App() {
         </a>
         <a href="https://argimlas.de/datenschutz.html">Privacy Policy</a>
         <a href="https://argimlas.de/impressum.html">Imprint</a>
-        <button className="footer-privacy-btn" onClick={reset}>
+        <button className="footer-privacy-btn" onClick={handlePrivacyReset}>
           Privacy settings
         </button>
       </footer>
@@ -88,23 +136,30 @@ function App() {
             <h2>How to use</h2>
             <ul>
               <li>
-                <strong>Import lineup</strong> — open the Lineup section,
-                optionally set a festival name, paste your lineup (day headers
-                as DD.MM.YYYY or YYYY-MM-DD), then click Import.
+                <strong>Multiple festivals</strong> — use the tabs next to
+                the title to switch between up to 4 festivals. Add or delete
+                festivals from the Import/Edit section below.
+              </li>
+              <li>
+                <strong>Import lineup</strong> — open the Import/Edit section,
+                click one of the "Import festival" tabs to load a lineup
+                published on the site in one click, or paste your own lineup
+                (day headers as DD.MM.YYYY or YYYY-MM-DD) and click Import.
               </li>
               <li>
                 <strong>Add manually</strong> — pick a date, stage, band name
-                and times under "Add manually".
+                and times under "Add manually"; it adds to whichever festival
+                tab is currently selected.
               </li>
               <li>
-                <strong>Rename</strong> — open the Lineup section and click ✎
-                next to the festival name or any stage heading to rename it
-                everywhere it appears.
+                <strong>Rename</strong> — open the Import/Edit section and
+                click ✎ next to the festival name or any stage heading to
+                rename it everywhere it appears.
               </li>
               <li>
-                <strong>Edit &amp; delete acts</strong> — in the Lineup
+                <strong>Edit &amp; delete acts</strong> — in the Import/Edit
                 section, edit (✎) or delete (×) individual acts, or use
-                "Delete lineup" to start over.
+                "Delete festival" to remove the whole festival.
               </li>
               <li>
                 <strong>Mark interest &amp; seen</strong> — click an act to

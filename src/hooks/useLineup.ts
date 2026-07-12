@@ -9,7 +9,7 @@ interface LineupData {
 
 const defaultData: LineupData = { festival: null, interestMap: {}, seenMap: {} };
 
-function load(festivalId: string): LineupData {
+function loadFromStorage(festivalId: string): LineupData {
   try {
     const raw = localStorage.getItem(`lineup_${festivalId}`);
     return raw ? { ...defaultData, ...(JSON.parse(raw) as LineupData) } : defaultData;
@@ -19,26 +19,54 @@ function load(festivalId: string): LineupData {
 }
 
 export function useLineup(festivalId = 'default', consented = false) {
-  const [data, setData] = useState<LineupData>(() => load(festivalId));
+  // Cache per-festival data in memory for the life of the tab, independent
+  // of consent. Without this, switching festivals while consent is declined
+  // (so nothing is written to localStorage) would silently discard whatever
+  // was loaded into the festival being switched away from.
+  const [cache, setCache] = useState<Record<string, LineupData>>(() => ({
+    [festivalId]: loadFromStorage(festivalId),
+  }));
+
+  if (!(festivalId in cache)) {
+    setCache(c => ({ ...c, [festivalId]: loadFromStorage(festivalId) }));
+  }
+  const data = cache[festivalId] ?? defaultData;
+
+  const update = (updater: (d: LineupData) => LineupData) =>
+    setCache(c => ({ ...c, [festivalId]: updater(c[festivalId] ?? defaultData) }));
 
   useEffect(() => {
     if (!consented) return;
-    localStorage.setItem(`lineup_${festivalId}`, JSON.stringify(data));
+    try { localStorage.setItem(`lineup_${festivalId}`, JSON.stringify(data)); } catch { /* ignore */ }
   }, [festivalId, data, consented]);
 
   const setFestival = (festival: Festival | null) =>
-    setData(d => ({ ...d, festival }));
+    update(d => ({ ...d, festival }));
+
+  // Writes into an arbitrary festival's slot regardless of which one is
+  // currently active. Needed right after creating a new festival: `activeId`
+  // hasn't re-rendered into this hook's `festivalId` prop yet, so `update`
+  // (which always targets `festivalId`) would write to the wrong slot.
+  const setFestivalFor = (id: string, festival: Festival | null) => {
+    setCache(c => {
+      const next = { ...(c[id] ?? loadFromStorage(id)), festival };
+      if (consented) {
+        try { localStorage.setItem(`lineup_${id}`, JSON.stringify(next)); } catch { /* ignore */ }
+      }
+      return { ...c, [id]: next };
+    });
+  };
 
   const setInterest = (actId: string, level: InterestLevel) =>
-    setData(d => ({ ...d, interestMap: { ...d.interestMap, [actId]: level } }));
+    update(d => ({ ...d, interestMap: { ...d.interestMap, [actId]: level } }));
 
   const setSeen = (actId: string) =>
-    setData(d => ({ ...d, seenMap: { ...d.seenMap, [actId]: !d.seenMap[actId] } }));
+    update(d => ({ ...d, seenMap: { ...d.seenMap, [actId]: !d.seenMap[actId] } }));
 
   const clearStorage = () => {
     try { localStorage.removeItem(`lineup_${festivalId}`); } catch { /* ignore */ }
-    setData(defaultData);
+    setCache(c => ({ ...c, [festivalId]: defaultData }));
   };
 
-  return { festival: data.festival, interestMap: data.interestMap, seenMap: data.seenMap, setFestival, setInterest, setSeen, clearStorage };
+  return { festival: data.festival, interestMap: data.interestMap, seenMap: data.seenMap, setFestival, setFestivalFor, setInterest, setSeen, clearStorage };
 }

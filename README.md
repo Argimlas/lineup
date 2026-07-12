@@ -4,9 +4,13 @@ A browser-based festival schedule planner. Import a lineup, mark your interest i
 
 ## Usage
 
+### Festivals
+
+Use the tabs next to the title to switch between up to 4 festivals. Each keeps its own lineup, interest picks, and seen marks. Add or remove festivals from the **Import/Edit** section (see below).
+
 ### Import
 
-Open the **Import** section, optionally set the festival name, paste your lineup in the format below, and click Import.
+Open the **Import/Edit** section. To try it out without your own data, click one of the **Import festival** tabs (capped to 4, sourced from `public/lineups/manifest.json`) to load it in one click — add a `.txt` file plus a matching manifest entry to publish more. Use **+ New festival** to create an empty festival (also capped at 4 total). Or optionally set the festival name, paste your own lineup in the format below, and click Import.
 
 ```
 10.07.2026
@@ -26,7 +30,7 @@ Band D, 21:00, 22:30
 - Separate days with a blank line.
 - Acts keep the exact date header they are entered under, including after-midnight times.
 
-You can also add or edit acts individually under **Add manually**. To remove a single act, open the **Lineup** section and click ×. To rename the festival or a stage, click ✎ next to its name — the new name applies everywhere it's used. Use **Delete all** to clear everything, or **Copy lineup** to export the current lineup back into the paste format above.
+You can also add or edit acts individually under **Add manually** — it adds to whichever festival tab is currently selected. To remove a single act, open the **Import/Edit** section and click ×. To rename the festival or a stage, click ✎ next to its name — the new name applies everywhere it's used. Use **Delete festival** to remove the whole festival (including its tab), or **Copy lineup** to export the current lineup back into the paste format above.
 
 ### Timeline
 
@@ -45,7 +49,7 @@ Use the day tabs to switch between days — on load, the app jumps to the curren
 
 ### Privacy
 
-Interest selections are saved in your browser's localStorage after you accept the consent prompt. To change your choice later, use the **Privacy settings** link in the footer.
+Interest selections are saved in your browser's localStorage after you accept the consent prompt. To change your choice later, use the **Privacy settings** link in the footer — confirming there permanently deletes every saved festival, lineup, and preference from this browser and reloads the app to a fresh state.
 
 ## Quick start
 

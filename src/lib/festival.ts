@@ -16,8 +16,8 @@ export function deleteAct(festival: Festival, actId: string): Festival {
   };
 }
 
-export function addAct(festival: Festival | null, dayDate: string, stageName: string, act: Omit<Act, 'id' | 'stage'>): Festival {
-  const base: Festival = festival ?? { id: 'default', name: 'Festival', days: [] };
+export function addAct(festival: Festival | null, dayDate: string, stageName: string, act: Omit<Act, 'id' | 'stage'>, festivalId = 'default'): Festival {
+  const base: Festival = festival ?? { id: festivalId, name: 'Festival', days: [] };
   const resolvedAct: Act = { ...act, stage: stageName, id: makeId(dayDate, stageName, act.name, act.startTime) };
   const days = base.days;
 
