@@ -128,15 +128,15 @@ function App() {
       {consent === null && (
         <div className="consent-banner">
           <span>
-            <strong>We save data in your browser.</strong> With your consent,
-            this app saves your festival interest selections so they persist
-            between visits. Without consent, the app still works but your
-            selections are cleared when you close the tab.{" "}
-            <a href="#privacy">Privacy Policy</a>
+            <strong>We save data in your browser.</strong> If you agree,
+            you keep your saved lineup and picks next time. If you decline,
+            everything clears when you close the tab — the app still
+            works.{" "}
+            <a href="https://argimlas.de/datenschutz.html">Privacy Policy</a>
           </span>
           <div className="consent-actions">
-            <button onClick={accept}>I accept</button>
-            <button onClick={() => { clearStorage(); decline(); }}>I decline</button>
+            <button onClick={accept}>I accept saving my data</button>
+            <button onClick={() => { clearStorage(); decline(); }}>I decline saving my data</button>
           </div>
         </div>
       )}
