@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Festival } from '../types';
 import { todayISODate } from '../lib/date';
 import { safeGet, safeSet, safeRemove } from '../lib/storage';
+import { useHydrateOnConsent } from './useHydrateOnConsent';
 
 export interface FestivalMeta {
   id: string;
@@ -46,17 +47,12 @@ export function useFestivals(consented: boolean) {
   // Abs. 1 TDDDG covers access to already-stored info, not just writing it).
   const [index, setIndex] = useState<FestivalMeta[]>(() => (consented ? loadIndex() : DEFAULT_INDEX));
   const [activeId, setActiveId] = useState<string>(() => (consented ? pickActiveFestival(loadIndex()) : DEFAULT_INDEX[0].id));
-  // Once consent turns on (fresh accept, or re-accept after it expired),
-  // hydrate from storage so the user recovers whatever was already saved
-  // instead of staying on the placeholder default used while pending.
-  const [hydrated, setHydrated] = useState(consented);
 
-  if (consented && !hydrated) {
-    setHydrated(true);
+  useHydrateOnConsent(consented, () => {
     const loadedIndex = loadIndex();
     setIndex(loadedIndex);
     setActiveId(pickActiveFestival(loadedIndex));
-  }
+  });
 
   useEffect(() => {
     if (!consented) return;

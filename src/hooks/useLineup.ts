@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Festival, InterestLevel, InterestMap } from '../types';
 import { safeGet, safeSet } from '../lib/storage';
+import { useHydrateOnConsent } from './useHydrateOnConsent';
 
 interface LineupData {
   festival: Festival | null;
@@ -26,19 +27,15 @@ export function useLineup(festivalId = 'default', consented = false) {
   const [cache, setCache] = useState<Record<string, LineupData>>(() => ({
     [festivalId]: consented ? loadFromStorage(festivalId) : defaultData,
   }));
-  // Once consent turns on (fresh accept, or re-accept after it expired),
-  // hydrate the active slot from storage so the user recovers whatever was
-  // already saved instead of staying on the empty state used while pending.
-  const [hydrated, setHydrated] = useState(consented);
-
   if (!(festivalId in cache)) {
     setCache(c => ({ ...c, [festivalId]: consented ? loadFromStorage(festivalId) : defaultData }));
   }
 
-  if (consented && !hydrated) {
-    setHydrated(true);
+  // Hydrate the active slot from storage so the user recovers whatever was
+  // already saved instead of staying on the empty state used while pending.
+  useHydrateOnConsent(consented, () => {
     setCache(c => ({ ...c, [festivalId]: loadFromStorage(festivalId) }));
-  }
+  });
 
   const data = cache[festivalId] ?? defaultData;
 
