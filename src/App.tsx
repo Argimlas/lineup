@@ -193,8 +193,8 @@ function App() {
         <div className="consent-banner">
           <span>
             <strong>We save data in your browser.</strong> If you agree,
-            you keep your saved lineup and picks next time. If you decline,
-            everything clears when you close the tab — the app still
+            your saved lineup and picks stay for next time. If you decline,
+            we delete everything saved here right away — the app still
             works.{" "}
             <a href="https://argimlas.de/datenschutz.html">Privacy Policy</a>
           </span>
