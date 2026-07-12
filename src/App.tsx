@@ -21,14 +21,18 @@ function App() {
 
   // Every festival write also keeps the switcher's name label in sync, so
   // renaming (or importing under a new name) doesn't require a second step.
+  const syncName = (f: Festival | null) => {
+    if (f?.name) renameFestival(activeId, f.name);
+  };
+
   const setFestival = (f: Festival | null) => {
     setFestivalRaw(f);
-    if (f?.name) renameFestival(activeId, f.name);
+    syncName(f);
   };
 
   const replaceFestival = (f: Festival | null) => {
     replaceFestivalRaw(f);
-    if (f?.name) renameFestival(activeId, f.name);
+    syncName(f);
   };
 
   const handleNewFestival = () => {
