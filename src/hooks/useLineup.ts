@@ -23,13 +23,27 @@ export function useLineup(festivalId = 'default', consented = false) {
   // of consent. Without this, switching festivals while consent is declined
   // (so nothing is written to localStorage) would silently discard whatever
   // was loaded into the festival being switched away from.
+  //
+  // Reads from storage are gated on `consented`: while consent is null or
+  // declined, previously saved data must not be loaded (§ 25 Abs. 1 TDDDG
+  // covers access to already-stored info, not just writing new info).
   const [cache, setCache] = useState<Record<string, LineupData>>(() => ({
-    [festivalId]: loadFromStorage(festivalId),
+    [festivalId]: consented ? loadFromStorage(festivalId) : defaultData,
   }));
+  // Once consent turns on (fresh accept, or re-accept after it expired),
+  // hydrate the active slot from storage so the user recovers whatever was
+  // already saved instead of staying on the empty state used while pending.
+  const [hydrated, setHydrated] = useState(consented);
 
   if (!(festivalId in cache)) {
+    setCache(c => ({ ...c, [festivalId]: consented ? loadFromStorage(festivalId) : defaultData }));
+  }
+
+  if (consented && !hydrated) {
+    setHydrated(true);
     setCache(c => ({ ...c, [festivalId]: loadFromStorage(festivalId) }));
   }
+
   const data = cache[festivalId] ?? defaultData;
 
   const update = (updater: (d: LineupData) => LineupData) =>
@@ -55,7 +69,7 @@ export function useLineup(festivalId = 'default', consented = false) {
   // (which always targets `festivalId`) would write to the wrong slot.
   const setFestivalFor = (id: string, festival: Festival | null) => {
     setCache(c => {
-      const next = { ...(c[id] ?? loadFromStorage(id)), festival };
+      const next = { ...(c[id] ?? (consented ? loadFromStorage(id) : defaultData)), festival };
       if (consented) {
         try { localStorage.setItem(`lineup_${id}`, JSON.stringify(next)); } catch { /* ignore */ }
       }

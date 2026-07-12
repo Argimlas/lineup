@@ -53,8 +53,22 @@ function pickActiveFestival(index: FestivalMeta[]): string {
 }
 
 export function useFestivals(consented: boolean) {
-  const [index, setIndex] = useState<FestivalMeta[]>(loadIndex);
-  const [activeId, setActiveId] = useState<string>(() => pickActiveFestival(loadIndex()));
+  // Reads from storage are gated on `consented`: while consent is null or
+  // declined, the previously saved festival list must not be loaded (§ 25
+  // Abs. 1 TDDDG covers access to already-stored info, not just writing it).
+  const [index, setIndex] = useState<FestivalMeta[]>(() => (consented ? loadIndex() : DEFAULT_INDEX));
+  const [activeId, setActiveId] = useState<string>(() => (consented ? pickActiveFestival(loadIndex()) : DEFAULT_INDEX[0].id));
+  // Once consent turns on (fresh accept, or re-accept after it expired),
+  // hydrate from storage so the user recovers whatever was already saved
+  // instead of staying on the placeholder default used while pending.
+  const [hydrated, setHydrated] = useState(consented);
+
+  if (consented && !hydrated) {
+    setHydrated(true);
+    const loadedIndex = loadIndex();
+    setIndex(loadedIndex);
+    setActiveId(pickActiveFestival(loadedIndex));
+  }
 
   useEffect(() => {
     if (!consented) return;
