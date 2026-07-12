@@ -321,9 +321,17 @@
 @media (max-width: 640px) {
   .consent-banner {
     bottom: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .consent-actions {
+    flex-direction: column;
+    width: 100%;
   }
 
   .consent-actions button {
+    width: 100%;
     min-height: 44px;
   }
 }
