@@ -13,6 +13,16 @@ export function formatDayLabel(date: string): string {
   return parseISODate(date).toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: '2-digit' });
 }
 
+export function isValidISODate(date: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const d = parseISODate(date);
+  return (
+    d.getFullYear() === Number(date.slice(0, 4)) &&
+    d.getMonth() === Number(date.slice(5, 7)) - 1 &&
+    d.getDate() === Number(date.slice(8, 10))
+  );
+}
+
 export function todayISODate(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

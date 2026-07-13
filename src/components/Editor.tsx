@@ -3,7 +3,7 @@ import type { Festival, Act } from '../types';
 import { parseLineup } from '../lib/parser';
 import { serializeLineup } from '../lib/serialize';
 import { formatTime, parseTimeToMinutes } from '../lib/time';
-import { formatDayLabel } from '../lib/date';
+import { formatDayLabel, isValidISODate } from '../lib/date';
 import { deleteAct, addAct, updateAct, renameStage } from '../lib/festival';
 import { fetchPresetManifest, fetchPresetLineup, type PresetMeta } from '../lib/presets';
 
@@ -118,6 +118,10 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
   const handleAdd = () => {
     const { day, stage, name, start, end } = form;
     if (!day.trim() || !stage.trim() || !name.trim()) return;
+    if (!isValidISODate(day.trim())) {
+      setFormError('Enter the date as YYYY-MM-DD (e.g. 2026-07-10).');
+      return;
+    }
     const startTime = parseTimeToMinutes(start);
     const endTime = parseTimeToMinutes(end);
     if (startTime === null || endTime === null) {
@@ -329,7 +333,7 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
 
       <details>
         <summary>Add manually</summary>
-        <input type="date" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
+        <input placeholder="Date (YYYY-MM-DD)" value={form.day} onChange={e => setForm(f => ({ ...f, day: e.target.value }))} />
         <input placeholder="Stage" value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))} />
         <input placeholder="Band" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         <input placeholder="Start (HH:mm)" value={form.start} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />

@@ -412,13 +412,6 @@
   border-color: #666;
 }
 
-/* iOS Safari ignores CSS width on type=date and renders its shadow DOM
-   (icon + value) blank/overflowing unless the intrinsic logical width is
-   pinned to the container explicitly. */
-.editor input[type='date'] {
-  -webkit-min-logical-width: 100%;
-}
-
 /* action buttons (Importieren / Hinzufügen) */
 .editor :is(section, details) > button,
 .import-row button {
