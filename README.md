@@ -10,7 +10,7 @@ Use the tabs next to the title (a dropdown on mobile) to switch between up to 4 
 
 ### Import
 
-Open the **Import/Edit** section. To try it out without your own data, click one of the **Lineup presets** (capped to 4, sourced from `public/lineups/manifest.json`) to load it into the current festival in one click — add a `.txt` file plus a matching manifest entry to publish more. Or set a festival name, paste your own lineup in the format below, and click Import.
+Open the **Import/Edit** section. To try it out without your own data, click one of the **Lineup presets** (capped to 4, sourced from `public/lineups/manifest.json`) to load it — an empty festival loads it right away, otherwise you're asked whether to override the current lineup or load the preset into a new festival tab. Add a `.txt` file plus a matching manifest entry to publish more. Or set a festival name, paste your own lineup in the format below, and click Import.
 
 ```
 10.07.2026
@@ -30,7 +30,7 @@ Band D, 21:00, 22:30
 - Separate days with a blank line.
 - Acts keep the exact date header they are entered under, including after-midnight times.
 
-You can also add or edit acts individually under **Add manually** — it adds to whichever festival tab is currently selected. To remove a single act, open the **Import/Edit** section and click ×. To rename the festival or a stage, click ✎ next to its name — the new name applies everywhere it's used. Use **Delete festival** to remove the whole festival (including its tab), or **Copy lineup** to export the current lineup back into the paste format above.
+You can also add or edit acts individually under **Add manually** (date as `YYYY-MM-DD`) — it adds to whichever festival tab is currently selected. To remove a single act, open the **Import/Edit** section and click ×. To rename the festival or a stage, click ✎ next to its name — the new name applies everywhere it's used. Use **Delete festival** to remove the whole festival (including its tab), or **Copy lineup** to export the current lineup back into the paste format above.
 
 ### Timeline
 
@@ -49,7 +49,7 @@ Use the day tabs to switch between days — on load, the app jumps to the curren
 
 ### Privacy
 
-Interest selections are saved in your browser's localStorage after you accept the consent prompt. To change your choice later, use the **Privacy settings** link in the footer — confirming there permanently deletes every saved festival, lineup, and preference from this browser and reloads the app to a fresh state.
+Interest selections are saved in your browser's localStorage after you accept the consent prompt. Click **Privacy settings** in the footer to reopen that prompt at any time — accept again to keep your saved data, or decline to permanently delete every saved festival, lineup, and preference from this browser and reload the app to a fresh state.
 
 ## Quick start
 
