@@ -54,6 +54,16 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
     setPrevFestival(festival);
     setFestivalName(festival?.name ?? '');
   }
+  // Default open/collapsed follows whether the active festival has a lineup
+  // yet, but only re-derives on tab switch (festivalId change) — not on
+  // every edit within the same festival, so importing doesn't auto-collapse
+  // the section the user is still looking at.
+  const [prevFestivalId, setPrevFestivalId] = useState(festivalId);
+  const [importEditOpen, setImportEditOpen] = useState((festival?.days.length ?? 0) === 0);
+  if (festivalId !== prevFestivalId) {
+    setPrevFestivalId(festivalId);
+    setImportEditOpen((festival?.days.length ?? 0) === 0);
+  }
   const [importError, setImportError] = useState('');
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState('');
@@ -173,7 +183,7 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
 
   return (
     <div className="editor">
-      <details>
+      <details open={importEditOpen} onToggle={e => setImportEditOpen(e.currentTarget.open)}>
         <summary>Import/Edit</summary>
         {presets.length > 0 && (
           <div className="preset-tabs-row">
