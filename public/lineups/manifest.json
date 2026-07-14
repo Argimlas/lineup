@@ -1,3 +1,4 @@
 [
-  { "id": "example", "name": "Example Festival", "file": "example-lineup.txt" }
+  { "id": "example", "name": "Example Festival", "file": "example-lineup.txt" },
+  { "id": "ozora", "name": "OZORA", "file": "ozora.txt", "unofficial": true }
 ]

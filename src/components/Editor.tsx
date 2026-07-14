@@ -193,11 +193,22 @@ export default function Editor({ festival, setFestival, onReplaceFestival, festi
           <div className="preset-tabs-row">
             <span className="preset-label">Lineup presets:</span>
             {presets.slice(0, 4).map(p => (
-              <button key={p.id} type="button" className="preset-tab" onClick={() => handlePresetTabClick(p)}>
-                {p.name}
+              <button
+                key={p.id}
+                type="button"
+                className="preset-tab"
+                onClick={() => handlePresetTabClick(p)}
+                title={p.unofficial ? 'Unofficial fan-made lineup, not affiliated with or endorsed by the festival organizer.' : undefined}
+              >
+                {p.name}{p.unofficial && <span className="preset-unofficial-badge"> (unofficial)</span>}
               </button>
             ))}
           </div>
+        )}
+        {presets.some(p => p.unofficial) && (
+          <p className="preset-disclaimer">
+            Presets marked "unofficial" are fan-made, community-sourced lineups, not affiliated with or endorsed by the festival organizer. Provided for personal, non-commercial use — no guarantee of accuracy.
+          </p>
         )}
         {presetError && <p className="preset-error">{presetError}</p>}
         <div className="import-row">

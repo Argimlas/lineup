@@ -2,6 +2,7 @@ export interface PresetMeta {
   id: string;
   name: string;
   file: string;
+  unofficial?: boolean;
 }
 
 export async function fetchPresetManifest(): Promise<PresetMeta[]> {

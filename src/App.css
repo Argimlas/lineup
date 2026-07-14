@@ -521,6 +521,17 @@
   color: #e07070;
 }
 
+.preset-unofficial-badge {
+  color: #888;
+  font-size: 0.85em;
+}
+
+.preset-disclaimer {
+  color: #888;
+  font-size: 0.75rem;
+  margin: 0 0 8px;
+}
+
 @media (max-width: 640px) {
   .preset-tab {
     min-height: 38px;
