@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import type { Day, Act, InterestLevel, InterestMap } from "../types";
 import BandCard from "./BandCard";
-import { formatTime } from "../lib/time";
+import { formatTime, formatDuration } from "../lib/time";
 import { formatDayLabel } from "../lib/date";
 
 interface Props {
@@ -192,7 +192,7 @@ export default function Timeline({
             pointerEvents: "none",
           }}
         >
-          {gapEnd - gapStart} min
+          {formatDuration(gapEnd - gapStart)}
         </div>,
       );
     });
