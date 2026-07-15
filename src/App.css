@@ -744,6 +744,8 @@
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
     margin-left: 0;
+    width: 100%;
+    min-width: 0;
   }
 
   .day-tab,
